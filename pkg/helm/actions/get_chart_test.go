@@ -254,6 +254,148 @@ func TestGetChartWithTlsData(t *testing.T) {
 	}
 }
 
+func TestGetChartBasicAuth(t *testing.T) {
+	tests := []struct {
+		name                string
+		chartPath           string
+		chartName           string
+		indexEntry          string
+		repositoryNamespace string
+		createSecret        bool
+		createNamespace     bool
+		createHelmRepo      bool
+		namespace           string
+		createConfigMap     bool
+		requireError        bool
+		helmCRS             []*unstructured.Unstructured
+	}{
+		{
+			name:            "mychart",
+			chartPath:       "http://localhost:8181/charts/mychart-0.1.0.tgz",
+			chartName:       "mychart",
+			createSecret:    true,
+			createNamespace: true,
+			createConfigMap: true,
+			namespace:       "test",
+			indexEntry:      "mychart--my-repo",
+			createHelmRepo:  true,
+			helmCRS: []*unstructured.Unstructured{
+				{
+					Object: map[string]interface{}{
+						"apiVersion": "helm.openshift.io/v1beta1",
+						"kind":       "ProjectHelmChartRepository",
+						"metadata": map[string]interface{}{
+							"namespace": "test",
+							"name":      "my-repo",
+						},
+						"spec": map[string]interface{}{
+							"connectionConfig": map[string]interface{}{
+								"url": "http://localhost:8181",
+								"basicAuthConfig": map[string]interface{}{
+									"name":      "my-repo",
+									"namespace": "test",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:            "mariadb",
+			chartPath:       "http://localhost:8181/charts/mariadb-7.3.5.tgz",
+			chartName:       "mariadb",
+			indexEntry:      "mariadb--my-repo",
+			createHelmRepo:  true,
+			createSecret:    true,
+			createNamespace: true,
+			createConfigMap: true,
+			helmCRS: []*unstructured.Unstructured{
+				{
+					Object: map[string]interface{}{
+						"apiVersion": "helm.openshift.io/v1beta1",
+						"kind":       "HelmChartRepository",
+						"metadata": map[string]interface{}{
+							"name": "my-repo",
+						},
+						"spec": map[string]interface{}{
+							"connectionConfig": map[string]interface{}{
+								"url": "http://localhost:8181",
+								"basicAuthConfig": map[string]interface{}{
+									"name": "my-repo",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:         "Invalid chart url",
+			chartPath:    "../testdata/invalid.tgz",
+			requireError: true,
+		},
+	}
+	store := storage.Init(driver.NewMemory())
+	actionConfig := &action.Configuration{
+		RESTClientGetter: FakeConfig{},
+		Releases:         store,
+		KubeClient:       &kubefake.PrintingKubeClient{Out: ioutil.Discard},
+		Capabilities:     chartutil.DefaultCapabilities,
+		Log:              func(format string, v ...interface{}) {},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			objs := []runtime.Object{}
+			// create a namespace if it is not same as openshift-config
+			if test.createNamespace && test.namespace != configNamespace {
+				nsSpec := &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: test.namespace}}
+				objs = append(objs, nsSpec)
+			}
+			// create a secret in required namespace
+			if test.createSecret {
+				certificate, errCert := ioutil.ReadFile("./server.crt")
+				require.NoError(t, errCert)
+				key, errKey := ioutil.ReadFile("./server.key")
+				require.NoError(t, errKey)
+				data := map[string][]byte{
+					"tls.key":  key,
+					"tls.crt":  certificate,
+					"username": []byte("AzureDiamond"),
+					"password": []byte("hunter2"),
+				}
+				if test.namespace == "" {
+					test.namespace = configNamespace
+				}
+				secretSpec := &v1.Secret{Data: data, ObjectMeta: metav1.ObjectMeta{Name: "my-repo", Namespace: test.namespace}}
+				objs = append(objs, secretSpec)
+			}
+			//create a configMap in openshift-config namespace
+			if test.createConfigMap {
+				caCert, err := ioutil.ReadFile("./cacert.pem")
+				require.NoError(t, err)
+				data := map[string]string{
+					"ca-bundle.crt": string(caCert),
+				}
+				secretSpec := &v1.ConfigMap{Data: data, ObjectMeta: metav1.ObjectMeta{Name: "my-repo", Namespace: configNamespace}}
+				objs = append(objs, secretSpec)
+			}
+
+			client := K8sDynamicClientFromCRs(test.helmCRS...)
+			clientInterface := k8sfake.NewSimpleClientset(objs...)
+			coreClient := clientInterface.CoreV1()
+			chart, err := GetChart(test.chartPath, actionConfig, test.namespace, client, coreClient, false, test.indexEntry)
+			if test.requireError {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, chart.Metadata)
+				require.Equal(t, chart.Metadata.Name, test.chartName)
+			}
+		})
+	}
+}
+
 func K8sDynamicClientFromCRs(crs ...*unstructured.Unstructured) dynamic.Interface {
 	var objs []runtime.Object
 

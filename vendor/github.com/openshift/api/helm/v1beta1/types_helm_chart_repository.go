@@ -84,6 +84,13 @@ type ConnectionConfig struct {
 	// For ProjectHelmChartRepository the default will be the namespace where the repository is getting instantiated.
 	// +optional
 	TLSClientConfig *SecretNamespacedReference `json:"tlsClientConfig,omitempty"`
+
+	// basicAuthConfig is an optional reference to a secret by name that contains
+	// the basic authentication credentials to present when connecting to the server.
+	// The key "username" is used locate the username.
+	// The key "password" is used to locate the password.
+	// +optional
+	BasicAuthConfig *SecretNamespacedReference `json:"basicAuthConfig,omitempty"`
 }
 
 // SecretNamespacedReference references a secret in a specific namespace.

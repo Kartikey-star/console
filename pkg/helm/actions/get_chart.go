@@ -27,6 +27,9 @@ const (
 	openshiftRepoUrl        = "https://charts.openshift.io"
 	chartRepoPrefix         = "chart.openshift.io/chart-url-prefix"
 	openshiftChartUrlPrefix = "https://github.com/openshift-helm-charts/"
+
+	baUsernameKey = "username"
+	baPasswordKey = "password"
 )
 
 // writeTempFile creates a temporary file with the given `data`. `pattern`

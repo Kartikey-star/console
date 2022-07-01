@@ -59,6 +59,36 @@ func TestUpgradeReleaseWithoutDependencies(t *testing.T) {
 			},
 		},
 		{
+			testName:        "basic auth: upgrade valid release should return successful response",
+			chartPath:       "http://localhost:8181/charts/influxdb-3.0.2.tgz",
+			chartName:       "influxdb",
+			chartVersion:    "3.0.2",
+			indexEntry:      "influxdb--with-basic-auth",
+			namespace:       "test",
+			createNamespace: true,
+			createSecret:    true,
+			helmCRS: []*unstructured.Unstructured{
+				{
+					Object: map[string]interface{}{
+						"apiVersion": "helm.openshift.io/v1beta1",
+						"kind":       "HelmChartRepository",
+						"metadata": map[string]interface{}{
+							"name": "with-basic-auth",
+						},
+						"spec": map[string]interface{}{
+							"connectionConfig": map[string]interface{}{
+								"url": "http://localhost:8181",
+								"basicAuthConfig": map[string]interface{}{
+									"name":      "with-basic-auth",
+									"namespace": "test",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
 			testName:     "upgrade invalid chart upgrade should fail",
 			chartPath:    "../testdata/influxdb-3.0.1.tgz",
 			chartName:    "influxdb",

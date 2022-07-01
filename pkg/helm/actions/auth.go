@@ -48,6 +48,29 @@ func setUpAuthentication(chartPathOptions *action.ChartPathOptions, connectionCo
 		chartPathOptions.KeyFile = tlsKeyFile.Name()
 		tlsFiles = append(tlsFiles, tlsKeyFile)
 	}
+
+	if connectionConfig.BasicAuthConfig != nil {
+		secretName := connectionConfig.BasicAuthConfig.Name
+		secretNamespace := connectionConfig.BasicAuthConfig.Namespace
+		if secretNamespace == "" {
+			secretNamespace = configNamespace
+		}
+		secret, err := coreClient.Secrets(secretNamespace).Get(context.TODO(), secretName, v1.GetOptions{})
+		if err != nil {
+			return nil, fmt.Errorf("failed to GET secret %s/%s, reason %v", secretNamespace, secretName, err)
+		}
+		baUsername, found := secret.Data[baUsernameKey]
+		if !found {
+			return nil, fmt.Errorf("failed to find %s key in secret %s/%s", baUsernameKey, secretNamespace, secretName)
+		}
+		chartPathOptions.Username = string(baUsername)
+		baPassword, found := secret.Data[baPasswordKey]
+		if !found {
+			return nil, fmt.Errorf("failed to find %s key in secret %s/%s", baPasswordKey, secretNamespace, secretName)
+		}
+		chartPathOptions.Password = string(baPassword)
+	}
+
 	//set up ca certificate
 	if connectionConfig.CA != nil {
 		configMapName = connectionConfig.CA.Name

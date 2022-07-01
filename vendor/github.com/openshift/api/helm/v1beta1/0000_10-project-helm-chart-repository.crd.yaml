@@ -44,6 +44,18 @@ spec:
                   description: Required configuration for connecting to the chart repo
                   type: object
                   properties:
+                    basicAuthConfig:
+                      description: basicAuthConfig is an optional reference to a secret by name that contains the basic authentication credentials to present when connecting to the server. The key "username" is used locate the username. The key "password" is used to locate the password.
+                      type: object
+                      required:
+                        - name
+                      properties:
+                        name:
+                          description: name is the metadata.name of the referenced secret
+                          type: string
+                        namespace:
+                          description: namespace is the metadata.namespace of the referenced secret
+                          type: string
                     ca:
                       description: ca is an optional reference to a config map by name containing the PEM-encoded CA bundle. It is used as a trust anchor to validate the TLS certificate presented by the remote server. The key "ca-bundle.crt" is used to locate the data. If empty, the default system roots are used. The namespace for this config map is openshift-config for Cluster scope repositoty if not specified by the user. For ProjectHelmChartRepository the default will be the namespace where the repository is getting instantiated.
                       type: object
