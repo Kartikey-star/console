@@ -60,36 +60,6 @@ func TestUpgradeReleaseWithoutDependencies(t *testing.T) {
 			},
 		},
 		{
-			testName:        "basic auth: upgrade valid release should return successful response",
-			chartPath:       "http://localhost:8181/charts/influxdb-3.0.2.tgz",
-			chartName:       "influxdb",
-			chartVersion:    "3.0.2",
-			indexEntry:      "influxdb--with-basic-auth",
-			createNamespace: true,
-			createSecret:    true,
-			namespace:       "test",
-			helmCRS: []*unstructured.Unstructured{
-				{
-					Object: map[string]interface{}{
-						"apiVersion": "helm.openshift.io/v1beta1",
-						"kind":       "ProjectHelmChartRepository",
-						"metadata": map[string]interface{}{
-							"name":      "with-basic-auth",
-							"namespace": "test",
-						},
-						"spec": map[string]interface{}{
-							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:8181",
-								"basicAuthConfig": map[string]interface{}{
-									"name": "with-basic-auth",
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		{
 			testName:     "upgrade invalid chart upgrade should fail",
 			chartPath:    "../testdata/influxdb-3.0.1.tgz",
 			chartName:    "influxdb",
@@ -165,10 +135,13 @@ func TestUpgradeReleaseWithoutDependencies(t *testing.T) {
 				key, errKey := ioutil.ReadFile("./server.key")
 				require.NoError(t, errKey)
 				data := map[string][]byte{
-					"tls.key":  key,
-					"tls.crt":  certificate,
-					"username": []byte("AzureDiamond"),
-					"password": []byte("hunter2"),
+					tlsSecretKey:     key,
+					tlsSecretCertKey: certificate,
+					username:         []byte("AzureDiamond"),
+					password:         []byte("hunter2"),
+				}
+				if tt.namespace == "" {
+					tt.namespace = configNamespace
 				}
 				secretSpec := &v1.Secret{Data: data, ObjectMeta: metav1.ObjectMeta{Name: "with-basic-auth", Namespace: tt.namespace}}
 				objs = append(objs, secretSpec)

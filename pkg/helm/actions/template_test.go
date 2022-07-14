@@ -170,6 +170,7 @@ func TestRenderManifestsBasicAuth(t *testing.T) {
 			chart:         "../testdata/influxdb-3.0.1.tgz",
 			values:        []byte("{\"service\": { \"type\": \"NodePort\" }, \"persistence\": {\"size\": \"16Gi\"}}"),
 			releaseName:   "test",
+			indexEntry:    "influxdb--without-tls",
 			templateValue: "",
 		},
 	}

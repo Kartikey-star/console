@@ -118,6 +118,7 @@ func TestGetChartWithTlsData(t *testing.T) {
 		repositoryNamespace string
 		createSecret        bool
 		createNamespace     bool
+		createHelmRepo      bool
 		namespace           string
 		createConfigMap     bool
 		requireError        bool
@@ -132,6 +133,7 @@ func TestGetChartWithTlsData(t *testing.T) {
 			createConfigMap: true,
 			namespace:       "test",
 			indexEntry:      "mychart--my-repo",
+			createHelmRepo:  true,
 			helmCRS: []*unstructured.Unstructured{
 				{
 					Object: map[string]interface{}{
@@ -161,6 +163,7 @@ func TestGetChartWithTlsData(t *testing.T) {
 			chartPath:       "https://localhost:9443/charts/mariadb-7.3.5.tgz",
 			chartName:       "mariadb",
 			indexEntry:      "mariadb--my-repo",
+			createHelmRepo:  true,
 			createSecret:    true,
 			createNamespace: true,
 			createConfigMap: true,
@@ -218,8 +221,8 @@ func TestGetChartWithTlsData(t *testing.T) {
 				key, errKey := ioutil.ReadFile("./server.key")
 				require.NoError(t, errKey)
 				data := map[string][]byte{
-					"tls.key": key,
-					"tls.crt": certificate,
+					tlsSecretKey:     key,
+					tlsSecretCertKey: certificate,
 				}
 				secretSpec := &v1.Secret{Data: data, ObjectMeta: metav1.ObjectMeta{Name: "my-repo", Namespace: test.namespace}}
 				objs = append(objs, secretSpec)
@@ -229,7 +232,7 @@ func TestGetChartWithTlsData(t *testing.T) {
 				caCert, err := ioutil.ReadFile("./cacert.pem")
 				require.NoError(t, err)
 				data := map[string]string{
-					"ca-bundle.crt": string(caCert),
+					caBundleKey: string(caCert),
 				}
 				configMapSpec := &v1.ConfigMap{Data: data, ObjectMeta: metav1.ObjectMeta{Name: "my-repo", Namespace: test.namespace}}
 				objs = append(objs, configMapSpec)
@@ -347,8 +350,8 @@ func TestGetChartBasicAuth(t *testing.T) {
 			// create a secret in required namespace
 			if test.createSecret {
 				data := map[string][]byte{
-					"username": []byte("AzureDiamond"),
-					"password": []byte("hunter2"),
+					Username: []byte("AzureDiamond"),
+					Password: []byte("hunter2"),
 				}
 				secretSpec := &v1.Secret{Data: data, ObjectMeta: metav1.ObjectMeta{Name: "my-repo", Namespace: test.namespace}}
 				objs = append(objs, secretSpec)

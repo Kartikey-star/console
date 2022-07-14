@@ -71,13 +71,13 @@ func UpgradeRelease(
 			clusterConnectionConfig := connectionConfig.(v1beta1.ConnectionConfig)
 			tlsFiles, err = setUpAuthentication(&client.ChartPathOptions, &clusterConnectionConfig, coreClient)
 			if err != nil {
-				return nil, fmt.Errorf("error setting up authentication: %w", err)
+				return nil, fmt.Errorf("error setting up authentication: %v", err)
 			}
 		} else {
 			namespaceConnectionConfig := connectionConfig.(v1beta1.ConnectionConfigNamespaceScoped)
 			tlsFiles, err = setUpAuthenticationProject(&client.ChartPathOptions, &namespaceConnectionConfig, coreClient, client.Namespace)
 			if err != nil {
-				return nil, fmt.Errorf("error setting up authentication: %w", err)
+				return nil, fmt.Errorf("error setting up authentication: %v", err)
 			}
 		}
 		if len(tlsFiles) == 0 {

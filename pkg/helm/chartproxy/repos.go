@@ -116,7 +116,11 @@ type helmRepoGetter struct {
 
 func (b helmRepoGetter) unmarshallConfig(repo unstructured.Unstructured, namespace string, isClusterScoped bool) (*helmRepo, error) {
 	h := &helmRepo{}
+<<<<<<< HEAD
 	var caReferenceNamespace, tlsRefNamespace, basicAuthRefNamespace string
+=======
+	var caReferenceNamespace, tlsRefNamespace string
+>>>>>>> 4205782c2b (Tls bug fix changes)
 	disabled, _, err := unstructured.NestedBool(repo.Object, "spec", "disabled")
 	if err != nil {
 		return nil, err
@@ -152,11 +156,14 @@ func (b helmRepoGetter) unmarshallConfig(repo unstructured.Unstructured, namespa
 	} else {
 		caReferenceNamespace = namespace
 	}
+<<<<<<< HEAD
 	if isClusterScoped {
 		caReferenceNamespace = configNamespace
 	} else {
 		caReferenceNamespace = namespace
 	}
+=======
+>>>>>>> 4205782c2b (Tls bug fix changes)
 
 	tlsReference, _, err := unstructured.NestedString(repo.Object, "spec", "connectionConfig", "tlsClientConfig", "name")
 	if err != nil {
@@ -167,6 +174,7 @@ func (b helmRepoGetter) unmarshallConfig(repo unstructured.Unstructured, namespa
 	} else {
 		tlsRefNamespace = namespace
 	}
+<<<<<<< HEAD
 
 	basicAuthReference, _, err := unstructured.NestedString(repo.Object, "spec", "connectionConfig", "basicAuthConfig", "name")
 	if err != nil {
@@ -177,6 +185,8 @@ func (b helmRepoGetter) unmarshallConfig(repo unstructured.Unstructured, namespa
 	} else {
 		basicAuthRefNamespace = namespace
 	}
+=======
+>>>>>>> 4205782c2b (Tls bug fix changes)
 
 	var rootCAs *x509.CertPool
 	if caReference != "" {
@@ -208,7 +218,11 @@ func (b helmRepoGetter) unmarshallConfig(repo unstructured.Unstructured, namespa
 	if tlsReference != "" {
 		secret, err := b.CoreClient.Secrets(tlsRefNamespace).Get(context.TODO(), tlsReference, v1.GetOptions{})
 		if err != nil {
+<<<<<<< HEAD
 			return nil, fmt.Errorf("Failed to GET secret %s from %vreason %v", tlsReference, tlsRefNamespace, err)
+=======
+			return nil, fmt.Errorf("Failed to GET secret %s from %v reason %v", tlsReference, tlsRefNamespace, err)
+>>>>>>> 4205782c2b (Tls bug fix changes)
 		}
 		tlsCertSecretKey := "tls.crt"
 		tlsCert, ok := secret.Data[tlsCertSecretKey]
