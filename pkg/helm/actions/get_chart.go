@@ -6,6 +6,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/openshift/api/helm/v1beta1"
 	"github.com/openshift/console/pkg/helm/chartproxy"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
@@ -132,7 +133,7 @@ func getChartInfoFromIndexEntry(
 func GetChart(url string, conf *action.Configuration, repositoryNamespace string, client dynamic.Interface, coreClient corev1client.CoreV1Interface, filesCleanup bool, indexEntry string) (*chart.Chart, error) {
 	var err error
 	var chartInfo *ChartInfo
-
+	tlsFiles := []*os.File{}
 	cmd := action.NewInstall(conf)
 	if repositoryNamespace == "" {
 		chartLocation, err := cmd.ChartPathOptions.LocateChart(url, settings)
@@ -150,11 +151,19 @@ func GetChart(url string, conf *action.Configuration, repositoryNamespace string
 	if err != nil {
 		return nil, err
 	}
-	cmd.ChartPathOptions.RepoURL = connectionConfig.URL
-
-	tlsFiles, err := setUpAuthentication(&cmd.ChartPathOptions, connectionConfig, coreClient, repositoryNamespace, isClusterScoped)
-	if err != nil {
-		return nil, fmt.Errorf("error setting up authentication: %w", err)
+	if isClusterScoped {
+		clusterConnectionConfig := connectionConfig.(v1beta1.ConnectionConfig)
+		cmd.ChartPathOptions.RepoURL = clusterConnectionConfig.URL
+		tlsFiles, err = setUpAuthentication(&cmd.ChartPathOptions, clusterConnectionConfig, coreClient)
+		if err != nil {
+			return nil, fmt.Errorf("error setting up authentication: %w", err)
+		}
+	} else {
+		cmd.ChartPathOptions.RepoURL = connectionConfig.(v1beta1.ConnectionConfigNamespaceScoped).URL
+		tlsFiles, err = setUpAuthenticationProject(&cmd.ChartPathOptions, connectionConfig.(v1beta1.ConnectionConfigNamespaceScoped), coreClient, repositoryNamespace)
+		if err != nil {
+			return nil, fmt.Errorf("error setting up authentication: %w", err)
+		}
 	}
 	chartLocation, locateChartErr := cmd.ChartPathOptions.LocateChart(chartInfo.Name, settings)
 	if locateChartErr != nil {

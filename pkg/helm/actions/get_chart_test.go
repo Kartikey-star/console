@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"fmt"
 	"io/ioutil"
 	"testing"
 
@@ -116,7 +115,6 @@ func TestGetChartWithTlsData(t *testing.T) {
 		repositoryNamespace string
 		createSecret        bool
 		createNamespace     bool
-		createHelmRepo      bool
 		namespace           string
 		createConfigMap     bool
 		requireError        bool
@@ -131,7 +129,6 @@ func TestGetChartWithTlsData(t *testing.T) {
 			createConfigMap: true,
 			namespace:       "test",
 			indexEntry:      "mychart--my-repo",
-			createHelmRepo:  true,
 			helmCRS: []*unstructured.Unstructured{
 				{
 					Object: map[string]interface{}{
@@ -162,7 +159,6 @@ func TestGetChartWithTlsData(t *testing.T) {
 			chartPath:       "https://localhost:8443/charts/mariadb-7.3.5.tgz",
 			chartName:       "mariadb",
 			indexEntry:      "mariadb--my-repo",
-			createHelmRepo:  true,
 			createSecret:    true,
 			createNamespace: true,
 			createConfigMap: true,
@@ -242,7 +238,6 @@ func TestGetChartWithTlsData(t *testing.T) {
 			clientInterface := k8sfake.NewSimpleClientset(objs...)
 			coreClient := clientInterface.CoreV1()
 			chart, err := GetChart(test.chartPath, actionConfig, test.namespace, client, coreClient, false, test.indexEntry)
-			fmt.Println("Error---", err)
 			if test.requireError {
 				require.Error(t, err)
 			} else {
@@ -263,9 +258,7 @@ func TestGetChartBasicAuth(t *testing.T) {
 		repositoryNamespace string
 		createSecret        bool
 		createNamespace     bool
-		createHelmRepo      bool
 		namespace           string
-		createConfigMap     bool
 		requireError        bool
 		helmCRS             []*unstructured.Unstructured
 	}{
@@ -275,10 +268,8 @@ func TestGetChartBasicAuth(t *testing.T) {
 			chartName:       "mychart",
 			createSecret:    true,
 			createNamespace: true,
-			createConfigMap: true,
 			namespace:       "test",
 			indexEntry:      "mychart--my-repo",
-			createHelmRepo:  true,
 			helmCRS: []*unstructured.Unstructured{
 				{
 					Object: map[string]interface{}{
@@ -306,10 +297,8 @@ func TestGetChartBasicAuth(t *testing.T) {
 			chartPath:       "http://localhost:8181/charts/mariadb-7.3.5.tgz",
 			chartName:       "mariadb",
 			indexEntry:      "mariadb--my-repo",
-			createHelmRepo:  true,
 			createSecret:    true,
 			createNamespace: true,
-			createConfigMap: true,
 			helmCRS: []*unstructured.Unstructured{
 				{
 					Object: map[string]interface{}{
@@ -354,13 +343,7 @@ func TestGetChartBasicAuth(t *testing.T) {
 			}
 			// create a secret in required namespace
 			if test.createSecret {
-				certificate, errCert := ioutil.ReadFile("./server.crt")
-				require.NoError(t, errCert)
-				key, errKey := ioutil.ReadFile("./server.key")
-				require.NoError(t, errKey)
 				data := map[string][]byte{
-					"tls.key":  key,
-					"tls.crt":  certificate,
 					"username": []byte("AzureDiamond"),
 					"password": []byte("hunter2"),
 				}
@@ -368,16 +351,6 @@ func TestGetChartBasicAuth(t *testing.T) {
 					test.namespace = configNamespace
 				}
 				secretSpec := &v1.Secret{Data: data, ObjectMeta: metav1.ObjectMeta{Name: "my-repo", Namespace: test.namespace}}
-				objs = append(objs, secretSpec)
-			}
-			//create a configMap in openshift-config namespace
-			if test.createConfigMap {
-				caCert, err := ioutil.ReadFile("./cacert.pem")
-				require.NoError(t, err)
-				data := map[string]string{
-					"ca-bundle.crt": string(caCert),
-				}
-				secretSpec := &v1.ConfigMap{Data: data, ObjectMeta: metav1.ObjectMeta{Name: "my-repo", Namespace: configNamespace}}
 				objs = append(objs, secretSpec)
 			}
 

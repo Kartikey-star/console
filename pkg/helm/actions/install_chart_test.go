@@ -274,7 +274,6 @@ func TestInstallChartBasicAuth(t *testing.T) {
 			// create a secret in required namespace
 			if tt.createSecret {
 				data := map[string][]byte{
-
 					"username": []byte("AzureDiamond"),
 					"password": []byte("hunter2"),
 				}

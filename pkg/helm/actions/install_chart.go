@@ -53,11 +53,18 @@ func InstallChart(ns, name, url string, vals map[string]interface{}, conf *actio
 	if err != nil {
 		return nil, err
 	}
-	cmd.ChartPathOptions.RepoURL = connectionConfig.URL
-
-	tlsFiles, err = setUpAuthentication(&cmd.ChartPathOptions, connectionConfig, coreClient, ns, isClusterScoped)
-	if err != nil {
-		return nil, err
+	if isClusterScoped {
+		cmd.ChartPathOptions.RepoURL = connectionConfig.(v1beta1.ConnectionConfig).URL
+		tlsFiles, err = setUpAuthentication(&cmd.ChartPathOptions, connectionConfig.(v1beta1.ConnectionConfig), coreClient)
+		if err != nil {
+			return nil, fmt.Errorf("error setting up authentication: %w", err)
+		}
+	} else {
+		cmd.ChartPathOptions.RepoURL = connectionConfig.(v1beta1.ConnectionConfigNamespaceScoped).URL
+		tlsFiles, err = setUpAuthenticationProject(&cmd.ChartPathOptions, connectionConfig.(v1beta1.ConnectionConfigNamespaceScoped), coreClient, ns)
+		if err != nil {
+			return nil, fmt.Errorf("error setting up authentication: %w", err)
+		}
 	}
 	cmd.ReleaseName = name
 	cp, err := cmd.ChartPathOptions.LocateChart(chartInfo.Name, settings)
@@ -106,17 +113,17 @@ func getRepositoryConnectionConfig(
 	name string,
 	namespace string,
 	client dynamic.Interface,
-) (*v1beta1.ConnectionConfig, bool, error) {
+) (interface{}, bool, error) {
 	// attempt to get a project scoped Helm Chart repository
 	unstructuredRepository, getProjectRepositoryErr := client.Resource(helmChartRepositoryNamespaceGVK).Namespace(namespace).Get(context.TODO(), name, v1.GetOptions{})
 	if getProjectRepositoryErr == nil {
 		var repository v1beta1.ProjectHelmChartRepository
 		err := runtime.DefaultUnstructuredConverter.FromUnstructured(unstructuredRepository.Object, &repository)
 		if err != nil {
-			return nil, false, err
+			return v1beta1.ConnectionConfig{}, false, err
 		}
 		//return false for icClusterScoped Repo or not
-		return &repository.Spec.ConnectionConfig, false, nil
+		return repository.Spec.ProjectConnectionConfig, false, nil
 	}
 
 	// attempt to get a cluster scoped Helm Chart repository
@@ -125,9 +132,9 @@ func getRepositoryConnectionConfig(
 		var repository v1beta1.HelmChartRepository
 		err := runtime.DefaultUnstructuredConverter.FromUnstructured(unstructuredRepository.Object, &repository)
 		if err != nil {
-			return nil, false, err
+			return v1beta1.ConnectionConfig{}, false, err
 		}
-		return &repository.Spec.ConnectionConfig, true, nil
+		return repository.Spec.ConnectionConfig, true, nil
 	}
 
 	// neither project or cluster scoped Helm Chart repositories have been found.

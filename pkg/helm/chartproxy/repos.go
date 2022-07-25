@@ -152,7 +152,7 @@ func (b helmRepoGetter) unmarshallConfig(repo unstructured.Unstructured, namespa
 	if err != nil {
 		return nil, err
 	}
-	if !caRefNamespaceFound && isClusterScoped {
+	if isClusterScoped {
 		caReferenceNamespace = configNamespace
 	} else if !caRefNamespaceFound && !isClusterScoped {
 		caReferenceNamespace = namespace
@@ -166,10 +166,24 @@ func (b helmRepoGetter) unmarshallConfig(repo unstructured.Unstructured, namespa
 	if err != nil {
 		return nil, err
 	}
-	if !tlsRefNamespaceFound && isClusterScoped {
+	if isClusterScoped {
 		tlsRefNamespace = configNamespace
 	} else if !tlsRefNamespaceFound && !isClusterScoped {
 		tlsRefNamespace = namespace
+	}
+
+	basicAuthReference, _, err := unstructured.NestedString(repo.Object, "spec", "connectionConfig", "basicAuthConfig", "name")
+	if err != nil {
+		return nil, err
+	}
+	basicAuthRefNamespace, basicAuthRefNamespaceFound, err := unstructured.NestedString(repo.Object, "spec", "connectionConfig", "basicAuthConfig", "namespace")
+	if err != nil {
+		return nil, err
+	}
+	if isClusterScoped {
+		basicAuthRefNamespace = configNamespace
+	} else if !basicAuthRefNamespaceFound && !isClusterScoped {
+		basicAuthRefNamespace = namespace
 	}
 
 	var rootCAs *x509.CertPool
@@ -222,6 +236,25 @@ func (b helmRepoGetter) unmarshallConfig(repo unstructured.Unstructured, namespa
 			tlsClientConfig.Certificates = []tls.Certificate{cert}
 		}
 	}
+
+	if basicAuthReference != "" {
+		secret, err := b.CoreClient.Secrets(basicAuthRefNamespace).Get(context.TODO(), basicAuthReference, v1.GetOptions{})
+		if err != nil {
+			return nil, fmt.Errorf("Failed to GET secret %s from %vreason %v", basicAuthReference, basicAuthRefNamespace, err)
+		}
+		baUsernameKey := "username"
+		baPasswordKey := "password"
+		baUsername, found := secret.Data[baUsernameKey]
+		if !found {
+			return nil, fmt.Errorf("failed to find %s key in secret %s/%s", baUsernameKey, basicAuthRefNamespace, basicAuthReference)
+		}
+		baPassword, found := secret.Data[baPasswordKey]
+		if !found {
+			return nil, fmt.Errorf("failed to find %s key in secret %s/%s", baPasswordKey, basicAuthRefNamespace, basicAuthReference)
+		}
+		h.URL.User = url.UserPassword(string(baUsername), string(baPassword))
+	}
+
 	h.httpClient = func() (*http.Client, error) {
 		return httpClient(tlsClientConfig)
 	}

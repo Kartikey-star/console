@@ -175,5 +175,5 @@ replace (
 	github.com/irifrance/gini v1.0.1 => github.com/go-air/gini v1.0.1
 	github.com/mikefarah/yq/v2 v2.4.1 => github.com/mikefarah/yq/v4 v4.13.2
 	github.com/opencontainers/runc => github.com/opencontainers/runc v1.0.0-rc8.0.20190926150303-84373aaa560b
-	github.com/openshift/api v0.0.0-20211103080632-8981c8822dfa => /home/isuttonl/sources/redhat/openshift-api
+	github.com/openshift/api v0.0.0-20211103080632-8981c8822dfa => /Users/kmamgain/Projects/api
 )

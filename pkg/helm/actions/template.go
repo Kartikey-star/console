@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/openshift/api/helm/v1beta1"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
@@ -43,11 +44,18 @@ func RenderManifests(name string, url string, vals map[string]interface{}, conf 
 	if err != nil {
 		return "", err
 	}
-	client.ChartPathOptions.RepoURL = connectionConfig.URL
-
-	tlsFiles, err = setUpAuthentication(&client.ChartPathOptions, connectionConfig, coreClient, ns, isClusterScoped)
-	if err != nil {
-		return "", err
+	if isClusterScoped {
+		client.ChartPathOptions.RepoURL = connectionConfig.(v1beta1.ConnectionConfig).URL
+		tlsFiles, err = setUpAuthentication(&client.ChartPathOptions, connectionConfig.(v1beta1.ConnectionConfig), coreClient)
+		if err != nil {
+			return emptyResponse, fmt.Errorf("error setting up authentication: %w", err)
+		}
+	} else {
+		client.ChartPathOptions.RepoURL = connectionConfig.(v1beta1.ConnectionConfigNamespaceScoped).URL
+		tlsFiles, err = setUpAuthenticationProject(&client.ChartPathOptions, connectionConfig.(v1beta1.ConnectionConfigNamespaceScoped), coreClient, ns)
+		if err != nil {
+			return emptyResponse, fmt.Errorf("error setting up authentication: %w", err)
+		}
 	}
 	client.ReleaseName = name
 

@@ -1,6 +1,7 @@
 package v1beta1
 
 import (
+	configv1 "github.com/openshift/api/config/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -71,52 +72,25 @@ type ConnectionConfig struct {
 	// It is used as a trust anchor to validate the TLS certificate presented by the remote server.
 	// The key "ca-bundle.crt" is used to locate the data.
 	// If empty, the default system roots are used.
-	// The namespace for this config map is openshift-config for Cluster scope repositoty if not specified by the user.
-	// For ProjectHelmChartRepository the default will be the namespace where the repository is getting instantiated.
+	// The namespace for this config map is openshift-config.
 	// +optional
-	CA *ConfigMapNameReference `json:"ca,omitempty"`
+	CA configv1.ConfigMapNameReference `json:"ca,omitempty"`
 
 	// tlsClientConfig is an optional reference to a secret by name that contains the
 	// PEM-encoded TLS client certificate and private key to present when connecting to the server.
 	// The key "tls.crt" is used to locate the client certificate.
 	// The key "tls.key" is used to locate the private key.
-	// The namespace for this config map is openshift-config for Cluster scope repositoty if not specified by the user.
-	// For ProjectHelmChartRepository the default will be the namespace where the repository is getting instantiated.
+	// The namespace for this secret is openshift-config.
 	// +optional
-	TLSClientConfig *SecretNamespacedReference `json:"tlsClientConfig,omitempty"`
+	TLSClientConfig configv1.SecretNameReference `json:"tlsClientConfig,omitempty"`
 
 	// basicAuthConfig is an optional reference to a secret by name that contains
 	// the basic authentication credentials to present when connecting to the server.
 	// The key "username" is used locate the username.
 	// The key "password" is used to locate the password.
+	// The namespace for this secret is openshift-config.
 	// +optional
-	BasicAuthConfig *SecretNamespacedReference `json:"basicAuthConfig,omitempty"`
-}
-
-// SecretNamespacedReference references a secret in a specific namespace.
-// The namespace must be specified at the point of use.
-type SecretNamespacedReference struct {
-	// name is the metadata.name of the referenced secret
-	// +kubebuilder:validation:Required
-	// +required
-	Name string `json:"name"`
-	// namespace is the metadata.namespace of the referenced secret
-	// +kubebuilder:validation:Optional
-	// +optional
-	Namespace string `json:"namespace,omitempty"`
-}
-
-// ConfigMapNameReference references a config map in a specific namespace.
-// The namespace must be specified at the point of use.
-type ConfigMapNameReference struct {
-	// name is the metadata.name of the referenced config map
-	// +kubebuilder:validation:Required
-	// +required
-	Name string `json:"name"`
-	// namespace is the metadata.namespace of the referenced config map
-	// +kubebuilder:validation:Optional
-	// +optional
-	Namespace string `json:"namespace,omitempty"`
+	BasicAuthConfig configv1.SecretNameReference `json:"basicAuthConfig,omitempty"`
 }
 
 type HelmChartRepositoryStatus struct {

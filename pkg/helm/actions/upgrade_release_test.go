@@ -64,7 +64,6 @@ func TestUpgradeReleaseWithoutDependencies(t *testing.T) {
 			chartName:       "influxdb",
 			chartVersion:    "3.0.2",
 			indexEntry:      "influxdb--with-basic-auth",
-			namespace:       "test",
 			createNamespace: true,
 			createSecret:    true,
 			helmCRS: []*unstructured.Unstructured{
@@ -79,8 +78,7 @@ func TestUpgradeReleaseWithoutDependencies(t *testing.T) {
 							"connectionConfig": map[string]interface{}{
 								"url": "http://localhost:8181",
 								"basicAuthConfig": map[string]interface{}{
-									"name":      "with-basic-auth",
-									"namespace": "test",
+									"name": "with-basic-auth",
 								},
 							},
 						},

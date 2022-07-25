@@ -1,9 +1,11 @@
 package actions
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
+	"github.com/openshift/api/helm/v1beta1"
 	"github.com/openshift/console/pkg/helm/metrics"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
@@ -64,11 +66,19 @@ func UpgradeRelease(
 		if err != nil {
 			return nil, err
 		}
-		tlsFiles, err = setUpAuthentication(&client.ChartPathOptions, connectionConfig, coreClient, client.Namespace, isClusterScoped)
-		if err != nil {
-			return nil, err
+		if isClusterScoped {
+			client.ChartPathOptions.RepoURL = connectionConfig.(v1beta1.ConnectionConfig).URL
+			tlsFiles, err = setUpAuthentication(&client.ChartPathOptions, connectionConfig.(v1beta1.ConnectionConfig), coreClient)
+			if err != nil {
+				return nil, fmt.Errorf("error setting up authentication: %w", err)
+			}
+		} else {
+			client.ChartPathOptions.RepoURL = connectionConfig.(v1beta1.ConnectionConfigNamespaceScoped).URL
+			tlsFiles, err = setUpAuthenticationProject(&client.ChartPathOptions, connectionConfig.(v1beta1.ConnectionConfigNamespaceScoped), coreClient, releaseNamespace)
+			if err != nil {
+				return nil, fmt.Errorf("error setting up authentication: %w", err)
+			}
 		}
-		client.ChartPathOptions.RepoURL = connectionConfig.URL
 		client.ChartPathOptions.Version = chartInfo.Version
 		cp, err := client.ChartPathOptions.LocateChart(chartInfo.Name, settings)
 		if err != nil {
