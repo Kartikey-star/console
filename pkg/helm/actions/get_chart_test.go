@@ -34,7 +34,7 @@ func TestGetChartWithoutTls(t *testing.T) {
 	}{
 		{
 			name:      "Valid chart url",
-			chartPath: "http://localhost:8080/charts/mariadb-7.3.5.tgz",
+			chartPath: "http://localhost:9080/charts/mariadb-7.3.5.tgz",
 			chartName: "mariadb",
 			namespace: "",
 			helmCRS: []*unstructured.Unstructured{
@@ -47,7 +47,7 @@ func TestGetChartWithoutTls(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:8080",
+								"url": "http://localhost:9080",
 							},
 						},
 					},
@@ -61,7 +61,7 @@ func TestGetChartWithoutTls(t *testing.T) {
 		},
 		{
 			name:         "Not Valid chart url",
-			chartPath:    "http://localhost:8080/charts/mariadb-7.3.6.tgz",
+			chartPath:    "http://localhost:9080/charts/mariadb-7.3.6.tgz",
 			chartName:    "mariadb",
 			namespace:    "",
 			requireError: true,
@@ -75,7 +75,7 @@ func TestGetChartWithoutTls(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:8080",
+								"url": "http://localhost:9080",
 							},
 						},
 					},
@@ -124,7 +124,7 @@ func TestGetChartWithTlsData(t *testing.T) {
 	}{
 		{
 			name:            "mychart",
-			chartPath:       "https://localhost:8443/charts/mychart-0.1.0.tgz",
+			chartPath:       "https://localhost:9443/charts/mychart-0.1.0.tgz",
 			chartName:       "mychart",
 			createSecret:    true,
 			createNamespace: true,
@@ -143,7 +143,7 @@ func TestGetChartWithTlsData(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "https://localhost:8443",
+								"url": "https://localhost:9443",
 								"tlsClientConfig": map[string]interface{}{
 									"name": "my-repo",
 								},
@@ -158,7 +158,7 @@ func TestGetChartWithTlsData(t *testing.T) {
 		},
 		{
 			name:            "mariadb",
-			chartPath:       "https://localhost:8443/charts/mariadb-7.3.5.tgz",
+			chartPath:       "https://localhost:9443/charts/mariadb-7.3.5.tgz",
 			chartName:       "mariadb",
 			indexEntry:      "mariadb--my-repo",
 			createHelmRepo:  true,
@@ -175,7 +175,7 @@ func TestGetChartWithTlsData(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "https://localhost:8443",
+								"url": "https://localhost:9443",
 								"tlsClientConfig": map[string]interface{}{
 									"name": "my-repo",
 								},

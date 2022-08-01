@@ -544,7 +544,7 @@ func TestHelmRepoGetter_unmarshallConfig(t *testing.T) {
 					},
 					"spec": map[string]interface{}{
 						"connectionConfig": map[string]interface{}{
-							"url": "https://localhost:8443",
+							"url": "https://localhost:9443",
 							"tlsClientConfig": map[string]interface{}{
 								"name":      "fooSecret",
 								"namespace": "testing",
@@ -571,7 +571,7 @@ func TestHelmRepoGetter_unmarshallConfig(t *testing.T) {
 					},
 					"spec": map[string]interface{}{
 						"connectionConfig": map[string]interface{}{
-							"url": "https://localhost:8443",
+							"url": "https://localhost:9443",
 							"tlsClientConfig": map[string]interface{}{
 								"name": "fooSecret",
 							},

@@ -48,7 +48,7 @@ func setupTestWithTls() error {
 	if err := ExecuteScript("./testdata/chartmuseum.sh", false); err != nil {
 		return err
 	}
-	time.Sleep(1 * time.Second)
+	time.Sleep(5 * time.Second)
 	if err := ExecuteScript("./testdata/cacertCreate.sh", true); err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func setupTestWithoutTls() error {
 	if err := ExecuteScript("./testdata/chartmuseumWithoutTls.sh", false); err != nil {
 		return err
 	}
-	time.Sleep(1 * time.Second)
+	time.Sleep(5 * time.Second)
 	if err := ExecuteScript("./testdata/uploadChartsWithoutTls.sh", true); err != nil {
 		return err
 	}
