@@ -1,6 +1,5 @@
 #!/bin/bash
-rm -rf ./chartstore
-rm -rf ./mychart
+rm -rf ./chartstore-*
 rm -rf ./ca.crt
 rm -rf ./ca.key
 rm -rf ./ca.srl
