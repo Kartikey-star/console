@@ -28,10 +28,10 @@ func TestMain(m *testing.M) {
 	if err := ExecuteScript("./testdata/chartmuseum-stop.sh", true); err != nil {
 		panic(err)
 	}
-	if err := ExecuteScript("./testdata/cleanupNonTls.sh", true); err != nil {
+	if err := ExecuteScript("./testdata/cleanupNonTls.sh", false); err != nil {
 		panic(err)
 	}
-	if err := ExecuteScript("./testdata/cleanup.sh", true); err != nil {
+	if err := ExecuteScript("./testdata/cleanup.sh", false); err != nil {
 		panic(err)
 	}
 	os.Exit(retCode)
