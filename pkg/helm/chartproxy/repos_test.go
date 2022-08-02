@@ -544,7 +544,7 @@ func TestHelmRepoGetter_unmarshallConfig(t *testing.T) {
 					},
 					"spec": map[string]interface{}{
 						"connectionConfig": map[string]interface{}{
-							"url": "https://localhost:9443",
+							"url": "https://localhost:9553",
 							"tlsClientConfig": map[string]interface{}{
 								"name":      "fooSecret",
 								"namespace": "testing",
@@ -571,7 +571,7 @@ func TestHelmRepoGetter_unmarshallConfig(t *testing.T) {
 					},
 					"spec": map[string]interface{}{
 						"connectionConfig": map[string]interface{}{
-							"url": "https://localhost:9443",
+							"url": "https://localhost:9553",
 							"tlsClientConfig": map[string]interface{}{
 								"name": "fooSecret",
 							},
@@ -618,9 +618,9 @@ func TestHelmRepoGetter_unmarshallConfig(t *testing.T) {
 			}
 		})
 	}
-	err := ExecuteScript("./testdata/chartmuseum-stop.sh", true)
-	require.NoError(t, err)
-	err = ExecuteScript("./testdata/cleanup.sh", true)
+	// err := ExecuteScript("./testdata/chartmuseum-stop.sh", true)
+	// require.NoError(t, err)
+	err := ExecuteScript("./testdata/cleanup.sh", true)
 	require.NoError(t, err)
 }
 

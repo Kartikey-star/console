@@ -9,6 +9,5 @@ rm -rf ./server.csr
 rm -rf ./server.key
 GOOS=${GOOS:-$(go env GOOS)}
 GOARCH=${GOARCH:-$(go env GOARCH)}
-rm -rf ./temporary
 rm -rf ./$GOOS-$GOARCH
 rm -rf ./chartmuseum.tar.gz
