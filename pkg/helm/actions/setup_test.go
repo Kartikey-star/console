@@ -25,9 +25,9 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 	retCode := m.Run()
-	// if err := ExecuteScript("./testdata/chartmuseum-stop.sh", true); err != nil {
-	// 	panic(err)
-	// }
+	if err := ExecuteScript("./testdata/chartmuseum-stop.sh", true); err != nil {
+		panic(err)
+	}
 	if err := ExecuteScript("./testdata/cleanupNonTls.sh", true); err != nil {
 		panic(err)
 	}
