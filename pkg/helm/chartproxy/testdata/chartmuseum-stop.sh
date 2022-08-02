@@ -1,3 +1,3 @@
 #!/bin/bash
 
-/usr/bin/killall chartmuseum
+/usr/bin/pkill -15 chartmuseum
