@@ -18,7 +18,6 @@ func setSettings(settings *cli.EnvSettings) {
 }
 
 func TestMain(m *testing.M) {
-	setSettings(settings)
 	if err := ExecuteScript("./testdata/chartmuseum-stop.sh", false); err != nil {
 		fmt.Println(err)
 	}
@@ -43,6 +42,7 @@ func TestMain(m *testing.M) {
 }
 
 func setupTestWithTls() error {
+	setSettings(settings)
 	if err := ExecuteScript("./testdata/downloadChartmuseum.sh", true); err != nil {
 		return err
 	}
@@ -63,6 +63,7 @@ func setupTestWithTls() error {
 }
 
 func setupTestWithoutTls() error {
+	setSettings(settings)
 	if err := ExecuteScript("./testdata/chartmuseumWithoutTls.sh", false); err != nil {
 		return err
 	}
