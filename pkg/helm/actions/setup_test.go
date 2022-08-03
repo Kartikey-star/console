@@ -18,9 +18,6 @@ func setSettings(settings *cli.EnvSettings) {
 }
 
 func TestMain(m *testing.M) {
-	if err := ExecuteScript("./testdata/chartmuseum-stop.sh", false); err != nil {
-		fmt.Println(err)
-	}
 	time.Sleep(10 * time.Second)
 	if err := setupTestWithTls(); err != nil {
 		panic(err)
