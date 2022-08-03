@@ -23,8 +23,9 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 	if err := setupTestWithoutTls(); err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
+	time.Sleep(1 * time.Hour)
 	retCode := m.Run()
 	if err := ExecuteScript("./testdata/chartmuseum-stop.sh", false); err != nil {
 		panic(err)
