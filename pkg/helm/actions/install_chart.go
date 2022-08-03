@@ -115,6 +115,7 @@ func getRepositoryConnectionConfig(
 	namespace string,
 	client dynamic.Interface,
 ) (interface{}, bool, error) {
+	fmt.Println("Name", name)
 	// attempt to get a project scoped Helm Chart repository
 	unstructuredRepository, getProjectRepositoryErr := client.Resource(helmChartRepositoryNamespaceGVK).Namespace(namespace).Get(context.TODO(), name, v1.GetOptions{})
 	if getProjectRepositoryErr == nil {

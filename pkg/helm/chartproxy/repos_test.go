@@ -618,10 +618,9 @@ func TestHelmRepoGetter_unmarshallConfig(t *testing.T) {
 			}
 		})
 	}
-	// err := ExecuteScript("./testdata/chartmuseum-stop.sh", true)
-	// fmt.Println("----", err)
-	// require.NoError(t, err)
-	err := ExecuteScript("./testdata/cleanup.sh", false)
+	err := ExecuteScript("./testdata/chartmuseum-stop.sh", true)
+	require.NoError(t, err)
+	err = ExecuteScript("./testdata/cleanup.sh", false)
 	require.NoError(t, err)
 }
 
@@ -632,13 +631,13 @@ func ExecuteScript(filepath string, waitForCompletion bool) error {
 	err := tlsCmd.Start()
 	if err != nil {
 		bytes, _ := ioutil.ReadAll(os.Stderr)
-		return fmt.Errorf("Error waiting program standard output :%s:%w", string(bytes), err)
+		return fmt.Errorf("Error starting command :%s:%s:%w", filepath, string(bytes), err)
 	}
 	if waitForCompletion {
 		err = tlsCmd.Wait()
 		if err != nil {
 			bytes, _ := ioutil.ReadAll(os.Stderr)
-			return fmt.Errorf("Error waiting program standard output :%s:%w", string(bytes), err)
+			return fmt.Errorf("Error waiting command :%s:%s:%w", filepath, string(bytes), err)
 		}
 	}
 	return nil

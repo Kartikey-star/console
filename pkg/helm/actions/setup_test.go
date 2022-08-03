@@ -25,9 +25,9 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 	retCode := m.Run()
-	// if err := ExecuteScript("./testdata/chartmuseum-stop.sh", true); err != nil {
-	// 	panic(err)
-	// }
+	if err := ExecuteScript("./testdata/chartmuseum-stop.sh", true); err != nil {
+		panic(err)
+	}
 	if err := ExecuteScript("./testdata/cleanupNonTls.sh", false); err != nil {
 		panic(err)
 	}
@@ -77,13 +77,13 @@ func ExecuteScript(filepath string, waitForCompletion bool) error {
 	err := tlsCmd.Start()
 	if err != nil {
 		bytes, _ := ioutil.ReadAll(os.Stderr)
-		return fmt.Errorf("Error starting program standard output :%s:%w", string(bytes), err)
+		return fmt.Errorf("Error starting program :%s:%s:%w", filepath, string(bytes), err)
 	}
 	if waitForCompletion {
 		err = tlsCmd.Wait()
 		if err != nil {
 			bytes, _ := ioutil.ReadAll(os.Stderr)
-			return fmt.Errorf("Error waiting program standard output :%s:%w", string(bytes), err)
+			return fmt.Errorf("Error waiting program :%s:%s:%w", filepath, string(bytes), err)
 		}
 	}
 	return nil

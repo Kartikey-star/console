@@ -164,13 +164,15 @@ func TestGetChartWithTlsData(t *testing.T) {
 			createSecret:    true,
 			createNamespace: true,
 			createConfigMap: true,
+			namespace:       "test",
 			helmCRS: []*unstructured.Unstructured{
 				{
 					Object: map[string]interface{}{
 						"apiVersion": "helm.openshift.io/v1beta1",
-						"kind":       "HelmChartRepository",
+						"kind":       "ProjectHelmChartRepository",
 						"metadata": map[string]interface{}{
-							"name": "my-repo",
+							"name":      "my-repo",
+							"namespace": "test",
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
@@ -218,9 +220,6 @@ func TestGetChartWithTlsData(t *testing.T) {
 				data := map[string][]byte{
 					"tls.key": key,
 					"tls.crt": certificate,
-				}
-				if test.namespace == "" {
-					test.namespace = configNamespace
 				}
 				secretSpec := &v1.Secret{Data: data, ObjectMeta: metav1.ObjectMeta{Name: "my-repo", Namespace: test.namespace}}
 				objs = append(objs, secretSpec)
