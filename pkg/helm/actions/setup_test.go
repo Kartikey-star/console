@@ -19,13 +19,16 @@ func setSettings(settings *cli.EnvSettings) {
 
 func TestMain(m *testing.M) {
 	setSettings(settings)
+	if err := ExecuteScript("./testdata/chartmuseum-stop.sh", false); err != nil {
+		fmt.Println(err)
+	}
+	time.Sleep(10 * time.Second)
 	if err := setupTestWithTls(); err != nil {
 		panic(err)
 	}
 	if err := setupTestWithoutTls(); err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
-	time.Sleep(1 * time.Hour)
 	retCode := m.Run()
 	if err := ExecuteScript("./testdata/chartmuseum-stop.sh", false); err != nil {
 		panic(err)
