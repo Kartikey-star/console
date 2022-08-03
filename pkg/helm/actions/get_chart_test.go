@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"fmt"
 	"io/ioutil"
 	"testing"
 
@@ -241,7 +240,6 @@ func TestGetChartWithTlsData(t *testing.T) {
 			clientInterface := k8sfake.NewSimpleClientset(objs...)
 			coreClient := clientInterface.CoreV1()
 			chart, err := GetChart(test.chartPath, actionConfig, test.namespace, client, coreClient, false, test.indexEntry)
-			fmt.Println("Error---", err)
 			if test.requireError {
 				require.Error(t, err)
 			} else {

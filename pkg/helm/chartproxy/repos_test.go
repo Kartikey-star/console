@@ -618,10 +618,10 @@ func TestHelmRepoGetter_unmarshallConfig(t *testing.T) {
 			}
 		})
 	}
-	err := ExecuteScript("./testdata/chartmuseum-stop.sh", true)
-	fmt.Println("----", err)
-	require.NoError(t, err)
-	err = ExecuteScript("./testdata/cleanup.sh", false)
+	// err := ExecuteScript("./testdata/chartmuseum-stop.sh", true)
+	// fmt.Println("----", err)
+	// require.NoError(t, err)
+	err := ExecuteScript("./testdata/cleanup.sh", false)
 	require.NoError(t, err)
 }
 
