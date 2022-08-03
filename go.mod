@@ -11,7 +11,7 @@ require (
 	github.com/devfile/registry-support/registry-library v0.0.0-20220527155645-8328a8a883be
 	github.com/gorilla/websocket v1.4.2
 	github.com/graph-gophers/graphql-go v0.0.0-20200309224638-dae41bde9ef9
-	github.com/openshift/api v0.0.0-20211103080632-8981c8822dfa
+	github.com/openshift/api v0.0.0-20220803132145-8e34324aa580
 	github.com/openshift/library-go v0.0.0-20200424095618-2aeb4725dadf
 	github.com/operator-framework/kubectl-operator v0.3.0
 	github.com/prometheus/client_golang v1.12.1
@@ -175,5 +175,4 @@ replace (
 	github.com/irifrance/gini v1.0.1 => github.com/go-air/gini v1.0.1
 	github.com/mikefarah/yq/v2 v2.4.1 => github.com/mikefarah/yq/v4 v4.13.2
 	github.com/opencontainers/runc => github.com/opencontainers/runc v1.0.0-rc8.0.20190926150303-84373aaa560b
-	github.com/openshift/api v0.0.0-20211103080632-8981c8822dfa => /Users/kmamgain/Projects/api
 )

@@ -83,14 +83,6 @@ type ConnectionConfig struct {
 	// The namespace for this secret is openshift-config.
 	// +optional
 	TLSClientConfig configv1.SecretNameReference `json:"tlsClientConfig,omitempty"`
-
-	// basicAuthConfig is an optional reference to a secret by name that contains
-	// the basic authentication credentials to present when connecting to the server.
-	// The key "username" is used locate the username.
-	// The key "password" is used to locate the password.
-	// The namespace for this secret is openshift-config.
-	// +optional
-	BasicAuthConfig configv1.SecretNameReference `json:"basicAuthConfig,omitempty"`
 }
 
 type HelmChartRepositoryStatus struct {

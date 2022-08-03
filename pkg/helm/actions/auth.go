@@ -44,27 +44,6 @@ func setUpAuthentication(chartPathOptions *action.ChartPathOptions, connectionCo
 		chartPathOptions.KeyFile = tlsKeyFile.Name()
 		tlsFiles = append(tlsFiles, tlsKeyFile)
 	}
-
-	//setup basic auth
-	if connectionConfig.BasicAuthConfig != (configv1.SecretNameReference{}) {
-		secretName := connectionConfig.BasicAuthConfig.Name
-		secretNamespace = configNamespace
-		secret, err := coreClient.Secrets(secretNamespace).Get(context.TODO(), secretName, v1.GetOptions{})
-		if err != nil {
-			return nil, fmt.Errorf("failed to GET secret %s/%s, reason %v", secretNamespace, secretName, err)
-		}
-		baUsername, found := secret.Data[baUsernameKey]
-		if !found {
-			return nil, fmt.Errorf("failed to find %s key in secret %s/%s", baUsernameKey, secretNamespace, secretName)
-		}
-		chartPathOptions.Username = string(baUsername)
-		baPassword, found := secret.Data[baPasswordKey]
-		if !found {
-			return nil, fmt.Errorf("failed to find %s key in secret %s/%s", baPasswordKey, secretNamespace, secretName)
-		}
-		chartPathOptions.Password = string(baPassword)
-	}
-
 	//set up ca certificate
 	if connectionConfig.CA != (configv1.ConfigMapNameReference{}) {
 		configMapName = connectionConfig.CA.Name
@@ -91,12 +70,9 @@ func setUpAuthenticationProject(chartPathOptions *action.ChartPathOptions, conne
 	tlsFiles := []*os.File{}
 	var secretNamespace, configMapName, configMapNameSpace, secretName string
 	//set up tls cert and key
-	if connectionConfig.TLSClientConfig != (v1beta1.SecretNamespacedReference{}) {
+	if connectionConfig.TLSClientConfig != (configv1.SecretNameReference{}) {
 		secretName = connectionConfig.TLSClientConfig.Name
-		secretNamespace = connectionConfig.TLSClientConfig.Namespace
-		if secretNamespace == "" {
-			secretNamespace = namespace
-		}
+		secretNamespace = namespace
 		secret, err := coreClient.Secrets(secretNamespace).Get(context.TODO(), secretName, v1.GetOptions{})
 		if err != nil {
 			return nil, fmt.Errorf("Failed to GET secret %s from %vreason %v", secretName, secretNamespace, err)
@@ -123,12 +99,9 @@ func setUpAuthenticationProject(chartPathOptions *action.ChartPathOptions, conne
 		tlsFiles = append(tlsFiles, tlsKeyFile)
 	}
 	//set up basic auth
-	if connectionConfig.BasicAuthConfig != (v1beta1.SecretNamespacedReference{}) {
+	if connectionConfig.BasicAuthConfig != (configv1.SecretNameReference{}) {
 		secretName := connectionConfig.BasicAuthConfig.Name
-		secretNamespace = connectionConfig.TLSClientConfig.Namespace
-		if secretNamespace == "" {
-			secretNamespace = namespace
-		}
+		secretNamespace = namespace
 		secret, err := coreClient.Secrets(secretNamespace).Get(context.TODO(), secretName, v1.GetOptions{})
 		if err != nil {
 			return nil, fmt.Errorf("failed to GET secret %s/%s, reason %v", secretNamespace, secretName, err)
@@ -145,12 +118,9 @@ func setUpAuthenticationProject(chartPathOptions *action.ChartPathOptions, conne
 		chartPathOptions.Password = string(baPassword)
 	}
 	//set up ca certificate
-	if connectionConfig.CA != (v1beta1.ConfigMapNameReference{}) {
+	if connectionConfig.CA != (configv1.ConfigMapNameReference{}) {
 		configMapName = connectionConfig.CA.Name
-		configMapNameSpace = connectionConfig.CA.Namespace
-		if configMapNameSpace == "" {
-			configMapNameSpace = namespace
-		}
+		configMapNameSpace = namespace
 		configMap, err := coreClient.ConfigMaps(configMapNameSpace).Get(context.TODO(), configMapName, v1.GetOptions{})
 		if err != nil {
 			return nil, fmt.Errorf("Failed to GET configmap %s, reason %v", configMapName, err)
