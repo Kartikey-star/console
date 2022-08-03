@@ -30,7 +30,7 @@ func TestGetRelease(t *testing.T) {
 	}{
 		{
 			testName:       "valid chart path",
-			chartPath:      "http://localhost:9080/charts/influxdb-3.0.2.tgz",
+			chartPath:      "http://localhost:9181/charts/influxdb-3.0.2.tgz",
 			releaseName:    "influxdb",
 			manifestValue:  influxdbTemplateValue,
 			repositoryName: "without-tls",
@@ -44,7 +44,7 @@ func TestGetRelease(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:9080",
+								"url": "http://localhost:9181",
 							},
 						},
 					},
@@ -53,7 +53,7 @@ func TestGetRelease(t *testing.T) {
 		},
 		{
 			testName:      "invalid chart path",
-			chartPath:     "http://localhost:9080/influxdb-3.0.1.tgz",
+			chartPath:     "http://localhost:9181/influxdb-3.0.1.tgz",
 			releaseName:   "influxdb-2",
 			manifestValue: "",
 		},

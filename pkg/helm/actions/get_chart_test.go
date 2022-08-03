@@ -33,7 +33,7 @@ func TestGetChartWithoutTls(t *testing.T) {
 	}{
 		{
 			name:      "Valid chart url",
-			chartPath: "http://localhost:9080/charts/mariadb-7.3.5.tgz",
+			chartPath: "http://localhost:9181/charts/mariadb-7.3.5.tgz",
 			chartName: "mariadb",
 			namespace: "",
 			helmCRS: []*unstructured.Unstructured{
@@ -46,7 +46,7 @@ func TestGetChartWithoutTls(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:9080",
+								"url": "http://localhost:9181",
 							},
 						},
 					},
@@ -60,7 +60,7 @@ func TestGetChartWithoutTls(t *testing.T) {
 		},
 		{
 			name:         "Not Valid chart url",
-			chartPath:    "http://localhost:9080/charts/mariadb-7.3.6.tgz",
+			chartPath:    "http://localhost:9181/charts/mariadb-7.3.6.tgz",
 			chartName:    "mariadb",
 			namespace:    "",
 			requireError: true,
@@ -74,7 +74,7 @@ func TestGetChartWithoutTls(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:9080",
+								"url": "http://localhost:9181",
 							},
 						},
 					},

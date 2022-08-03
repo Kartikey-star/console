@@ -37,7 +37,7 @@ func TestInstallChart(t *testing.T) {
 	}{
 		{
 			releaseName:  "myrelease",
-			chartPath:    "http://localhost:9080/charts/influxdb-3.0.2.tgz",
+			chartPath:    "http://localhost:9181/charts/influxdb-3.0.2.tgz",
 			chartName:    "influxdb",
 			chartVersion: "3.0.2",
 			helmCRS: []*unstructured.Unstructured{
@@ -50,7 +50,7 @@ func TestInstallChart(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:9080",
+								"url": "http://localhost:9181",
 							},
 						},
 					},
@@ -59,7 +59,7 @@ func TestInstallChart(t *testing.T) {
 		},
 		{
 			releaseName:  "invalid chart path",
-			chartPath:    "http://localhost:9080/charts/influxdb-3.0.1.tgz",
+			chartPath:    "http://localhost:9181/charts/influxdb-3.0.1.tgz",
 			chartName:    "influxdb",
 			chartVersion: "3.0.1",
 			helmCRS: []*unstructured.Unstructured{
@@ -72,7 +72,7 @@ func TestInstallChart(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:9080",
+								"url": "http://localhost:9181",
 							},
 						},
 					},
