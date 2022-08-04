@@ -53,6 +53,10 @@ func InstallChart(ns, name, url string, vals map[string]interface{}, conf *actio
 	if err != nil {
 		return nil, err
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 49584321862b04ed6e3d0846338cab1c7f9dd79e
 	if isClusterScoped {
 		cmd.ChartPathOptions.RepoURL = connectionConfig.(v1beta1.ConnectionConfig).URL
 		tlsFiles, err = setUpAuthentication(&cmd.ChartPathOptions, connectionConfig.(v1beta1.ConnectionConfig), coreClient)
@@ -139,5 +143,5 @@ func getRepositoryConnectionConfig(
 
 	// neither project or cluster scoped Helm Chart repositories have been found.
 	klog.Errorf("Error listing namespace helm chart repositories: %v \nempty repository list will be used", getClusterRepositoryErr)
-	return nil, false, getClusterRepositoryErr
+	return v1beta1.ConnectionConfig{}, false, getClusterRepositoryErr
 }

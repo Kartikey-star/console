@@ -37,7 +37,7 @@ func TestInstallChart(t *testing.T) {
 	}{
 		{
 			releaseName:  "myrelease",
-			chartPath:    "http://localhost:8080/charts/influxdb-3.0.2.tgz",
+			chartPath:    "http://localhost:9181/charts/influxdb-3.0.2.tgz",
 			chartName:    "influxdb",
 			chartVersion: "3.0.2",
 			helmCRS: []*unstructured.Unstructured{
@@ -50,7 +50,7 @@ func TestInstallChart(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:8080",
+								"url": "http://localhost:9181",
 							},
 						},
 					},
@@ -59,7 +59,7 @@ func TestInstallChart(t *testing.T) {
 		},
 		{
 			releaseName:  "invalid chart path",
-			chartPath:    "http://localhost:8080/charts/influxdb-3.0.1.tgz",
+			chartPath:    "http://localhost:9181/charts/influxdb-3.0.1.tgz",
 			chartName:    "influxdb",
 			chartVersion: "3.0.1",
 			helmCRS: []*unstructured.Unstructured{
@@ -72,7 +72,7 @@ func TestInstallChart(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:8080",
+								"url": "http://localhost:9181",
 							},
 						},
 					},
@@ -124,7 +124,7 @@ func TestInstallChartWithTlsData(t *testing.T) {
 	}{
 		{
 			releaseName:     "my-release",
-			chartPath:       "https://localhost:8443/charts/mychart-0.1.0.tgz",
+			chartPath:       "https://localhost:9443/charts/mychart-0.1.0.tgz",
 			chartName:       "mychart",
 			chartVersion:    "0.1.0",
 			createSecret:    true,
@@ -142,14 +142,12 @@ func TestInstallChartWithTlsData(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "https://localhost:8443",
+								"url": "https://localhost:9443",
 								"tlsClientConfig": map[string]interface{}{
-									"name":      "my-repo",
-									"namespace": "test",
+									"name": "my-repo",
 								},
 								"ca": map[string]interface{}{
-									"name":      "my-repo",
-									"namespace": "test",
+									"name": "my-repo",
 								},
 							},
 						},

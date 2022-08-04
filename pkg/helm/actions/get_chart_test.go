@@ -33,7 +33,7 @@ func TestGetChartWithoutTls(t *testing.T) {
 	}{
 		{
 			name:      "Valid chart url",
-			chartPath: "http://localhost:8080/charts/mariadb-7.3.5.tgz",
+			chartPath: "http://localhost:9181/charts/mariadb-7.3.5.tgz",
 			chartName: "mariadb",
 			namespace: "",
 			helmCRS: []*unstructured.Unstructured{
@@ -46,7 +46,7 @@ func TestGetChartWithoutTls(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:8080",
+								"url": "http://localhost:9181",
 							},
 						},
 					},
@@ -60,7 +60,7 @@ func TestGetChartWithoutTls(t *testing.T) {
 		},
 		{
 			name:         "Not Valid chart url",
-			chartPath:    "http://localhost:8080/charts/mariadb-7.3.6.tgz",
+			chartPath:    "http://localhost:9181/charts/mariadb-7.3.6.tgz",
 			chartName:    "mariadb",
 			namespace:    "",
 			requireError: true,
@@ -74,7 +74,7 @@ func TestGetChartWithoutTls(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:8080",
+								"url": "http://localhost:9181",
 							},
 						},
 					},
@@ -115,6 +115,7 @@ func TestGetChartWithTlsData(t *testing.T) {
 		repositoryNamespace string
 		createSecret        bool
 		createNamespace     bool
+		createHelmRepo      bool
 		namespace           string
 		createConfigMap     bool
 		requireError        bool
@@ -122,13 +123,14 @@ func TestGetChartWithTlsData(t *testing.T) {
 	}{
 		{
 			name:            "mychart",
-			chartPath:       "https://localhost:8443/charts/mychart-0.1.0.tgz",
+			chartPath:       "https://localhost:9443/charts/mychart-0.1.0.tgz",
 			chartName:       "mychart",
 			createSecret:    true,
 			createNamespace: true,
 			createConfigMap: true,
 			namespace:       "test",
 			indexEntry:      "mychart--my-repo",
+			createHelmRepo:  true,
 			helmCRS: []*unstructured.Unstructured{
 				{
 					Object: map[string]interface{}{
@@ -140,10 +142,9 @@ func TestGetChartWithTlsData(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "https://localhost:8443",
+								"url": "https://localhost:9443",
 								"tlsClientConfig": map[string]interface{}{
-									"name":      "my-repo",
-									"namespace": "test",
+									"name": "my-repo",
 								},
 								"ca": map[string]interface{}{
 									"name": "my-repo",
@@ -156,23 +157,26 @@ func TestGetChartWithTlsData(t *testing.T) {
 		},
 		{
 			name:            "mariadb",
-			chartPath:       "https://localhost:8443/charts/mariadb-7.3.5.tgz",
+			chartPath:       "https://localhost:9443/charts/mariadb-7.3.5.tgz",
 			chartName:       "mariadb",
 			indexEntry:      "mariadb--my-repo",
+			createHelmRepo:  true,
 			createSecret:    true,
 			createNamespace: true,
 			createConfigMap: true,
+			namespace:       "test",
 			helmCRS: []*unstructured.Unstructured{
 				{
 					Object: map[string]interface{}{
 						"apiVersion": "helm.openshift.io/v1beta1",
-						"kind":       "HelmChartRepository",
+						"kind":       "ProjectHelmChartRepository",
 						"metadata": map[string]interface{}{
-							"name": "my-repo",
+							"name":      "my-repo",
+							"namespace": "test",
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "https://localhost:8443",
+								"url": "https://localhost:9443",
 								"tlsClientConfig": map[string]interface{}{
 									"name": "my-repo",
 								},
@@ -216,9 +220,6 @@ func TestGetChartWithTlsData(t *testing.T) {
 				data := map[string][]byte{
 					"tls.key": key,
 					"tls.crt": certificate,
-				}
-				if test.namespace == "" {
-					test.namespace = configNamespace
 				}
 				secretSpec := &v1.Secret{Data: data, ObjectMeta: metav1.ObjectMeta{Name: "my-repo", Namespace: test.namespace}}
 				objs = append(objs, secretSpec)

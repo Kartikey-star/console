@@ -37,7 +37,7 @@ func TestUpgradeReleaseWithoutDependencies(t *testing.T) {
 	}{
 		{
 			testName:     "upgrade valid release should return successful response",
-			chartPath:    "http://localhost:8080/charts/influxdb-3.0.2.tgz",
+			chartPath:    "http://localhost:9181/charts/influxdb-3.0.2.tgz",
 			chartName:    "influxdb",
 			chartVersion: "3.0.2",
 			namespace:    "test",
@@ -111,7 +111,7 @@ func TestUpgradeReleaseWithoutDependencies(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:8080",
+								"url": "http://localhost:9181",
 							},
 						},
 					},
@@ -218,7 +218,7 @@ func TestUpgradeReleaseWithDependencies(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:8080",
+								"url": "http://localhost:9181",
 							},
 						},
 					},
@@ -251,7 +251,7 @@ func TestUpgradeReleaseWithDependencies(t *testing.T) {
 					Metadata: &chart.Metadata{
 						Name:        "wildfly",
 						Version:     "1.0.0",
-						Annotations: map[string]string{"chart_url": "http://localhost:8080/charts/wildfly-1.0.0.tgz"},
+						Annotations: map[string]string{"chart_url": "http://localhost:9181/charts/wildfly-1.0.0.tgz"},
 					},
 				},
 			}
@@ -328,7 +328,7 @@ func TestUpgradeReleaseWithCustomValues(t *testing.T) {
 	}{
 		{
 			testName:     "upgrade valid release with custom values should return successful response",
-			chartPath:    "http://localhost:8080/charts/influxdb-3.0.2.tgz",
+			chartPath:    "http://localhost:9181/charts/influxdb-3.0.2.tgz",
 			chartName:    "influxdb",
 			chartVersion: "3.0.2",
 			values: map[string]interface{}{
@@ -344,7 +344,7 @@ func TestUpgradeReleaseWithCustomValues(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:8080",
+								"url": "http://localhost:9181",
 							},
 						},
 					},
@@ -377,7 +377,7 @@ func TestUpgradeReleaseWithCustomValues(t *testing.T) {
 					Metadata: &chart.Metadata{
 						Name:        "influxdb",
 						Version:     "3.0.2",
-						Annotations: map[string]string{"chart_url": "http://localhost:8080/charts/influxdb-3.0.2.tgz"},
+						Annotations: map[string]string{"chart_url": "http://localhost:9181/charts/influxdb-3.0.2.tgz"},
 					},
 				},
 			}

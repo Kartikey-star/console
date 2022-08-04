@@ -520,19 +520,9 @@ func TestHelmRepoGetter_SkipDisabled(t *testing.T) {
 }
 
 func TestHelmRepoGetter_unmarshallConfig(t *testing.T) {
-	//create the server.key and server.crt
-	err := ExecuteScript("./testdata/downloadChartmuseum.sh", true)
-	require.NoError(t, err)
-	err = ExecuteScript("./testdata/createTlsSecrets.sh", true)
-	require.NoError(t, err)
-	//start chartmuseum server
-	err = ExecuteScript("./testdata/chartmuseum.sh", false)
-	require.NoError(t, err)
-	time.Sleep(1 * time.Second)
-	err = ExecuteScript("./testdata/cacertCreate.sh", true)
-	require.NoError(t, err)
-	err = ExecuteScript("./testdata/uploadCharts.sh", true)
-	require.NoError(t, err)
+	if err := setupTestWithTls(); err != nil {
+		panic(err)
+	}
 	tests := []struct {
 		name            string
 		helmCRS         *unstructured.Unstructured
@@ -554,7 +544,7 @@ func TestHelmRepoGetter_unmarshallConfig(t *testing.T) {
 					},
 					"spec": map[string]interface{}{
 						"connectionConfig": map[string]interface{}{
-							"url": "https://localhost:8443",
+							"url": "https://localhost:9553",
 							"tlsClientConfig": map[string]interface{}{
 								"name":      "fooSecret",
 								"namespace": "testing",
@@ -581,7 +571,7 @@ func TestHelmRepoGetter_unmarshallConfig(t *testing.T) {
 					},
 					"spec": map[string]interface{}{
 						"connectionConfig": map[string]interface{}{
-							"url": "https://localhost:8443",
+							"url": "https://localhost:9553",
 							"tlsClientConfig": map[string]interface{}{
 								"name": "fooSecret",
 							},
@@ -591,32 +581,6 @@ func TestHelmRepoGetter_unmarshallConfig(t *testing.T) {
 			},
 			repoName:        "repo5",
 			wantsErr:        false,
-			createSecret:    true,
-			createNamespace: false,
-		},
-		{
-			name: "Namespace is invalid",
-			helmCRS: &unstructured.Unstructured{
-				Object: map[string]interface{}{
-					"apiVersion": "helm.openshift.io/v1beta1",
-					"kind":       "ProjectHelmChartRepository",
-					"metadata": map[string]interface{}{
-						"namespace": "",
-						"name":      "repo6",
-					},
-					"spec": map[string]interface{}{
-						"connectionConfig": map[string]interface{}{
-							"url": "https://localhost:8443",
-							"tlsClientConfig": map[string]interface{}{
-								"name":      "fooSecret",
-								"namespace": 1,
-							},
-						},
-					},
-				},
-			},
-			repoName:        "repo6",
-			wantsErr:        true,
 			createSecret:    true,
 			createNamespace: false,
 		},
@@ -639,9 +603,6 @@ func TestHelmRepoGetter_unmarshallConfig(t *testing.T) {
 					"tls.key": key,
 					"tls.crt": certificate,
 				}
-				if tt.namespace == "" {
-					tt.namespace = configNamespace
-				}
 				secretSpec := &v1.Secret{Data: data, ObjectMeta: metav1.ObjectMeta{Name: "fooSecret", Namespace: tt.namespace}}
 				objs = append(objs, secretSpec)
 			}
@@ -657,9 +618,9 @@ func TestHelmRepoGetter_unmarshallConfig(t *testing.T) {
 			}
 		})
 	}
-	err = ExecuteScript("./testdata/chartmuseum-stop.sh", true)
+	err := ExecuteScript("./testdata/chartmuseum-stop.sh", false)
 	require.NoError(t, err)
-	err = ExecuteScript("./testdata/cleanup.sh", true)
+	err = ExecuteScript("./testdata/cleanup.sh", false)
 	require.NoError(t, err)
 }
 
@@ -670,14 +631,34 @@ func ExecuteScript(filepath string, waitForCompletion bool) error {
 	err := tlsCmd.Start()
 	if err != nil {
 		bytes, _ := ioutil.ReadAll(os.Stderr)
-		return fmt.Errorf("Error waiting program standard output :%s:%w", string(bytes), err)
+		return fmt.Errorf("Error starting command :%s:%s:%w", filepath, string(bytes), err)
 	}
 	if waitForCompletion {
 		err = tlsCmd.Wait()
 		if err != nil {
 			bytes, _ := ioutil.ReadAll(os.Stderr)
-			return fmt.Errorf("Error waiting program standard output :%s:%w", string(bytes), err)
+			return fmt.Errorf("Error waiting command :%s:%s:%w", filepath, string(bytes), err)
 		}
+	}
+	return nil
+}
+
+func setupTestWithTls() error {
+	if err := ExecuteScript("./testdata/downloadChartmuseum.sh", true); err != nil {
+		return err
+	}
+	if err := ExecuteScript("./testdata/createTlsSecrets.sh", true); err != nil {
+		return err
+	}
+	if err := ExecuteScript("./testdata/chartmuseum.sh", false); err != nil {
+		return err
+	}
+	time.Sleep(5 * time.Second)
+	if err := ExecuteScript("./testdata/cacertCreate.sh", true); err != nil {
+		return err
+	}
+	if err := ExecuteScript("./testdata/uploadCharts.sh", true); err != nil {
+		return err
 	}
 	return nil
 }

@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"fmt"
 	"io/ioutil"
 	"testing"
 
@@ -8,6 +9,7 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chartutil"
 	kubefake "helm.sh/helm/v3/pkg/kube/fake"
+	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/storage"
 	"helm.sh/helm/v3/pkg/storage/driver"
 	v1 "k8s.io/api/core/v1"
@@ -17,83 +19,83 @@ import (
 	k8sfake "k8s.io/client-go/kubernetes/fake"
 )
 
-// func TestGetRelease(t *testing.T) {
-// 	tests := []struct {
-// 		testName       string
-// 		chartPath      string
-// 		releaseName    string
-// 		manifestValue  string
-// 		repositoryName string
-// 		helmCRS        []*unstructured.Unstructured
-// 	}{
-// 		{
-// 			testName:       "valid chart path",
-// 			chartPath:      "http://localhost:8080/charts/influxdb-3.0.2.tgz",
-// 			releaseName:    "influxdb",
-// 			manifestValue:  influxdbTemplateValue,
-// 			repositoryName: "without-tls",
-// 			helmCRS: []*unstructured.Unstructured{
-// 				{
-// 					Object: map[string]interface{}{
-// 						"apiVersion": "helm.openshift.io/v1beta1",
-// 						"kind":       "HelmChartRepository",
-// 						"metadata": map[string]interface{}{
-// 							"name": "without-tls",
-// 						},
-// 						"spec": map[string]interface{}{
-// 							"connectionConfig": map[string]interface{}{
-// 								"url": "http://localhost:8080",
-// 							},
-// 						},
-// 					},
-// 				},
-// 			},
-// 		},
-// 		{
-// 			testName:      "invalid chart path",
-// 			chartPath:     "http://localhost:8080/influxdb-3.0.1.tgz",
-// 			releaseName:   "influxdb-2",
-// 			manifestValue: "",
-// 		},
-// 		{
-// 			testName:      "invalid release name",
-// 			chartPath:     "non-exist-path",
-// 			releaseName:   "influxdb-non-exist",
-// 			manifestValue: "",
-// 		},
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.testName, func(t *testing.T) {
-// 			store := storage.Init(driver.NewMemory())
-// 			actionConfig := &action.Configuration{
-// 				RESTClientGetter: FakeConfig{},
-// 				Releases:         store,
-// 				KubeClient:       &kubefake.PrintingKubeClient{Out: ioutil.Discard},
-// 				Capabilities:     chartutil.DefaultCapabilities,
-// 				Log:              func(format string, v ...interface{}) {},
-// 			}
-// 			client := K8sDynamicClientFromCRs(tt.helmCRS...)
-// 			clientInterface := k8sfake.NewSimpleClientset()
-// 			coreClient := clientInterface.CoreV1()
-// 			_, err := InstallChart("test-namespace", tt.releaseName, tt.chartPath, nil, actionConfig, client, coreClient, true, "")
-// 			fmt.Println(err)
-// 			if tt.testName == "valid chart path" {
-// 				require.NoError(t, err)
-// 				rel, err := GetRelease(tt.releaseName, actionConfig)
-// 				require.NoError(t, err)
-// 				require.Equal(t, tt.releaseName, rel.Name)
-// 				require.Equal(t, release.StatusDeployed, rel.Info.Status)
-// 				require.Equal(t, tt.manifestValue, rel.Manifest)
-// 			} else if tt.testName == "invalid chart path" {
-// 				require.Error(t, err)
-// 			} else if tt.testName == "invalid release name" {
-// 				rel, err := GetRelease(tt.releaseName, actionConfig)
-// 				require.Nil(t, rel)
-// 				require.Error(t, err)
-// 			}
-// 		})
-// 	}
-// }
+func TestGetRelease(t *testing.T) {
+	tests := []struct {
+		testName       string
+		chartPath      string
+		releaseName    string
+		manifestValue  string
+		repositoryName string
+		helmCRS        []*unstructured.Unstructured
+	}{
+		{
+			testName:       "valid chart path",
+			chartPath:      "http://localhost:9181/charts/influxdb-3.0.2.tgz",
+			releaseName:    "influxdb",
+			manifestValue:  influxdbTemplateValue,
+			repositoryName: "without-tls",
+			helmCRS: []*unstructured.Unstructured{
+				{
+					Object: map[string]interface{}{
+						"apiVersion": "helm.openshift.io/v1beta1",
+						"kind":       "HelmChartRepository",
+						"metadata": map[string]interface{}{
+							"name": "without-tls",
+						},
+						"spec": map[string]interface{}{
+							"connectionConfig": map[string]interface{}{
+								"url": "http://localhost:9181",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			testName:      "invalid chart path",
+			chartPath:     "http://localhost:9181/influxdb-3.0.1.tgz",
+			releaseName:   "influxdb-2",
+			manifestValue: "",
+		},
+		{
+			testName:      "invalid release name",
+			chartPath:     "non-exist-path",
+			releaseName:   "influxdb-non-exist",
+			manifestValue: "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.testName, func(t *testing.T) {
+			store := storage.Init(driver.NewMemory())
+			actionConfig := &action.Configuration{
+				RESTClientGetter: FakeConfig{},
+				Releases:         store,
+				KubeClient:       &kubefake.PrintingKubeClient{Out: ioutil.Discard},
+				Capabilities:     chartutil.DefaultCapabilities,
+				Log:              func(format string, v ...interface{}) {},
+			}
+			client := K8sDynamicClientFromCRs(tt.helmCRS...)
+			clientInterface := k8sfake.NewSimpleClientset()
+			coreClient := clientInterface.CoreV1()
+			_, err := InstallChart("test-namespace", tt.releaseName, tt.chartPath, nil, actionConfig, client, coreClient, true, "")
+			fmt.Println(err)
+			if tt.testName == "valid chart path" {
+				require.NoError(t, err)
+				rel, err := GetRelease(tt.releaseName, actionConfig)
+				require.NoError(t, err)
+				require.Equal(t, tt.releaseName, rel.Name)
+				require.Equal(t, release.StatusDeployed, rel.Info.Status)
+				require.Equal(t, tt.manifestValue, rel.Manifest)
+			} else if tt.testName == "invalid chart path" {
+				require.Error(t, err)
+			} else if tt.testName == "invalid release name" {
+				rel, err := GetRelease(tt.releaseName, actionConfig)
+				require.Nil(t, rel)
+				require.Error(t, err)
+			}
+		})
+	}
+}
 
 func TestGetReleaseWithTlsData(t *testing.T) {
 	tests := []struct {
@@ -110,7 +112,7 @@ func TestGetReleaseWithTlsData(t *testing.T) {
 	}{
 		{
 			releaseName:     "my-release",
-			chartPath:       "https://localhost:8443/charts/mychart-0.1.0.tgz",
+			chartPath:       "https://localhost:9443/charts/mychart-0.1.0.tgz",
 			chartName:       "mychart",
 			chartVersion:    "0.1.0",
 			createSecret:    true,
@@ -129,7 +131,7 @@ func TestGetReleaseWithTlsData(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "https://localhost:8443",
+								"url": "https://localhost:9443",
 								"tlsClientConfig": map[string]interface{}{
 									"name": "my-repo",
 								},

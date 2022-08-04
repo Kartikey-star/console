@@ -31,7 +31,7 @@ func TestRenderManifests(t *testing.T) {
 		{
 			testType:      "valid chartPath",
 			name:          "template-with-default-values",
-			chart:         "http://localhost:8080/charts/influxdb-3.0.2.tgz",
+			chart:         "http://localhost:9181/charts/influxdb-3.0.2.tgz",
 			values:        nil,
 			releaseName:   "test-influxdb",
 			templateValue: influxdbTemplateValue,
@@ -45,7 +45,7 @@ func TestRenderManifests(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:8080",
+								"url": "http://localhost:9181",
 							},
 						},
 					},
@@ -55,7 +55,7 @@ func TestRenderManifests(t *testing.T) {
 		{
 			testType:      "valid chartPath",
 			name:          "template-with-custom-values",
-			chart:         "http://localhost:8080/charts/influxdb-3.0.2.tgz",
+			chart:         "http://localhost:9181/charts/influxdb-3.0.2.tgz",
 			values:        []byte("{\"service\": { \"type\": \"NodePort\" }, \"persistence\": {\"size\": \"16Gi\"}}"),
 			releaseName:   "test",
 			templateValue: influxdbCustomValueTemplate,
@@ -69,7 +69,7 @@ func TestRenderManifests(t *testing.T) {
 						},
 						"spec": map[string]interface{}{
 							"connectionConfig": map[string]interface{}{
-								"url": "http://localhost:8080",
+								"url": "http://localhost:9181",
 							},
 						},
 					},
@@ -78,7 +78,7 @@ func TestRenderManifests(t *testing.T) {
 		},
 		{
 			testType:      "invalid chartPath",
-			name:          "http://localhost:8080/charts/influxdb-3.0.1.tgz",
+			name:          "http://localhost:9181/charts/influxdb-3.0.1.tgz",
 			chart:         "../testdata/influxdb-3.0.1.tgz",
 			values:        []byte("{\"service\": { \"type\": \"NodePort\" }, \"persistence\": {\"size\": \"16Gi\"}}"),
 			releaseName:   "test",

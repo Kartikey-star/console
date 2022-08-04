@@ -116,7 +116,7 @@ type helmRepoGetter struct {
 
 func (b helmRepoGetter) unmarshallConfig(repo unstructured.Unstructured, namespace string, isClusterScoped bool) (*helmRepo, error) {
 	h := &helmRepo{}
-
+	var caReferenceNamespace, tlsRefNamespace, basicAuthRefNamespace string
 	disabled, _, err := unstructured.NestedBool(repo.Object, "spec", "disabled")
 	if err != nil {
 		return nil, err
@@ -148,13 +148,9 @@ func (b helmRepoGetter) unmarshallConfig(repo unstructured.Unstructured, namespa
 		return nil, err
 	}
 
-	caReferenceNamespace, caRefNamespaceFound, err := unstructured.NestedString(repo.Object, "spec", "connectionConfig", "ca", "namespace")
-	if err != nil {
-		return nil, err
-	}
 	if isClusterScoped {
 		caReferenceNamespace = configNamespace
-	} else if !caRefNamespaceFound && !isClusterScoped {
+	} else {
 		caReferenceNamespace = namespace
 	}
 
@@ -162,13 +158,9 @@ func (b helmRepoGetter) unmarshallConfig(repo unstructured.Unstructured, namespa
 	if err != nil {
 		return nil, err
 	}
-	tlsRefNamespace, tlsRefNamespaceFound, err := unstructured.NestedString(repo.Object, "spec", "connectionConfig", "tlsClientConfig", "namespace")
-	if err != nil {
-		return nil, err
-	}
 	if isClusterScoped {
 		tlsRefNamespace = configNamespace
-	} else if !tlsRefNamespaceFound && !isClusterScoped {
+	} else {
 		tlsRefNamespace = namespace
 	}
 
@@ -176,13 +168,9 @@ func (b helmRepoGetter) unmarshallConfig(repo unstructured.Unstructured, namespa
 	if err != nil {
 		return nil, err
 	}
-	basicAuthRefNamespace, basicAuthRefNamespaceFound, err := unstructured.NestedString(repo.Object, "spec", "connectionConfig", "basicAuthConfig", "namespace")
-	if err != nil {
-		return nil, err
-	}
 	if isClusterScoped {
 		basicAuthRefNamespace = configNamespace
-	} else if !basicAuthRefNamespaceFound && !isClusterScoped {
+	} else {
 		basicAuthRefNamespace = namespace
 	}
 

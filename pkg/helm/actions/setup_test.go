@@ -18,6 +18,7 @@ func setSettings(settings *cli.EnvSettings) {
 }
 
 func TestMain(m *testing.M) {
+	time.Sleep(10 * time.Second)
 	if err := setupTestWithTls(); err != nil {
 		panic(err)
 	}
@@ -28,13 +29,13 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 	retCode := m.Run()
-	if err := ExecuteScript("./testdata/chartmuseum-stop.sh", true); err != nil {
+	if err := ExecuteScript("./testdata/chartmuseum-stop.sh", false); err != nil {
 		panic(err)
 	}
-	if err := ExecuteScript("./testdata/cleanupNonTls.sh", true); err != nil {
+	if err := ExecuteScript("./testdata/cleanupNonTls.sh", false); err != nil {
 		panic(err)
 	}
-	if err := ExecuteScript("./testdata/cleanup.sh", true); err != nil {
+	if err := ExecuteScript("./testdata/cleanup.sh", false); err != nil {
 		panic(err)
 	}
 	os.Exit(retCode)
@@ -51,7 +52,7 @@ func setupTestWithTls() error {
 	if err := ExecuteScript("./testdata/chartmuseum.sh", false); err != nil {
 		return err
 	}
-	time.Sleep(1 * time.Second)
+	time.Sleep(5 * time.Second)
 	if err := ExecuteScript("./testdata/cacertCreate.sh", true); err != nil {
 		return err
 	}
@@ -66,7 +67,7 @@ func setupTestWithoutTls() error {
 	if err := ExecuteScript("./testdata/chartmuseumWithoutTls.sh", false); err != nil {
 		return err
 	}
-	time.Sleep(1 * time.Second)
+	time.Sleep(5 * time.Second)
 	if err := ExecuteScript("./testdata/uploadChartsWithoutTls.sh", true); err != nil {
 		return err
 	}
@@ -92,13 +93,13 @@ func ExecuteScript(filepath string, waitForCompletion bool) error {
 	err := tlsCmd.Start()
 	if err != nil {
 		bytes, _ := ioutil.ReadAll(os.Stderr)
-		return fmt.Errorf("Error starting program standard output :%s:%w", string(bytes), err)
+		return fmt.Errorf("Error starting program :%s:%s:%w", filepath, string(bytes), err)
 	}
 	if waitForCompletion {
 		err = tlsCmd.Wait()
 		if err != nil {
 			bytes, _ := ioutil.ReadAll(os.Stderr)
-			return fmt.Errorf("Error waiting program standard output :%s:%w", string(bytes), err)
+			return fmt.Errorf("Error waiting program :%s:%s:%w", filepath, string(bytes), err)
 		}
 	}
 	return nil

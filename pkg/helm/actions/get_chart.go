@@ -151,6 +151,10 @@ func GetChart(url string, conf *action.Configuration, repositoryNamespace string
 	if err != nil {
 		return nil, err
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 49584321862b04ed6e3d0846338cab1c7f9dd79e
 	if isClusterScoped {
 		clusterConnectionConfig := connectionConfig.(v1beta1.ConnectionConfig)
 		cmd.ChartPathOptions.RepoURL = clusterConnectionConfig.URL
@@ -165,6 +169,10 @@ func GetChart(url string, conf *action.Configuration, repositoryNamespace string
 			return nil, fmt.Errorf("error setting up authentication: %w", err)
 		}
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> 49584321862b04ed6e3d0846338cab1c7f9dd79e
 	chartLocation, locateChartErr := cmd.ChartPathOptions.LocateChart(chartInfo.Name, settings)
 	if locateChartErr != nil {
 		return nil, fmt.Errorf("error locating chart: %w", locateChartErr)
