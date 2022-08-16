@@ -3,11 +3,8 @@ package actions
 import (
 	"fmt"
 	"os"
-	"strings"
-	"unicode"
 
 	"github.com/openshift/api/helm/v1beta1"
-	"github.com/openshift/console/pkg/helm/chartproxy"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"

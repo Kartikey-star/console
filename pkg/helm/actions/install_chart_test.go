@@ -278,8 +278,8 @@ func TestInstallChartBasicAuth(t *testing.T) {
 			// create a secret in required namespace
 			if tt.createSecret {
 				data := map[string][]byte{
-					Username: []byte("AzureDiamond"),
-					Password: []byte("hunter2"),
+					username: []byte("AzureDiamond"),
+					password: []byte("hunter2"),
 				}
 				if tt.namespace == "" {
 					tt.namespace = configNamespace
@@ -292,7 +292,7 @@ func TestInstallChartBasicAuth(t *testing.T) {
 				caCert, err := ioutil.ReadFile("./cacert.pem")
 				require.NoError(t, err)
 				data := map[string]string{
-					"ca-bundle.crt": string(caCert),
+					caBundleKey: string(caCert),
 				}
 				secretSpec := &v1.ConfigMap{Data: data, ObjectMeta: metav1.ObjectMeta{Name: "my-repo", Namespace: configNamespace}}
 				objs = append(objs, secretSpec)

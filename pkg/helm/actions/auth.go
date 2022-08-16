@@ -2,8 +2,11 @@ package actions
 
 import (
 	"context"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"os"
+	"time"
 
 	configv1 "github.com/openshift/api/config/v1"
 	"github.com/openshift/api/helm/v1beta1"
@@ -41,6 +44,7 @@ func setUpAuthentication(chartPathOptions *action.ChartPathOptions, connectionCo
 
 func setUpAuthenticationProject(chartPathOptions *action.ChartPathOptions, connectionConfig *v1beta1.ConnectionConfigNamespaceScoped, coreClient corev1client.CoreV1Interface, namespace string) ([]*os.File, error) {
 	tlsFiles := []*os.File{}
+	var secretNamespace string
 	//set up tls cert and key
 	if connectionConfig.TLSClientConfig != (configv1.SecretNameReference{}) {
 		chartPathOptions.RepoURL = connectionConfig.URL
@@ -56,19 +60,18 @@ func setUpAuthenticationProject(chartPathOptions *action.ChartPathOptions, conne
 	//set up basic auth
 	if connectionConfig.BasicAuthConfig != (configv1.SecretNameReference{}) {
 		secretName := connectionConfig.BasicAuthConfig.Name
-		secretNamespace = namespace
-		secret, err := coreClient.Secrets(secretNamespace).Get(context.TODO(), secretName, v1.GetOptions{})
+		secret, err := coreClient.Secrets(namespace).Get(context.TODO(), secretName, v1.GetOptions{})
 		if err != nil {
 			return nil, fmt.Errorf("failed to GET secret %s/%s, reason %v", secretNamespace, secretName, err)
 		}
-		baUsername, found := secret.Data[baUsernameKey]
+		baUsername, found := secret.Data[username]
 		if !found {
-			return nil, fmt.Errorf("failed to find %s key in secret %s/%s", baUsernameKey, secretNamespace, secretName)
+			return nil, fmt.Errorf("failed to find %s key in secret %s/%s", username, secretNamespace, secretName)
 		}
 		chartPathOptions.Username = string(baUsername)
-		baPassword, found := secret.Data[baPasswordKey]
+		baPassword, found := secret.Data[password]
 		if !found {
-			return nil, fmt.Errorf("failed to find %s key in secret %s/%s", baPasswordKey, secretNamespace, secretName)
+			return nil, fmt.Errorf("failed to find %s key in secret %s/%s", password, secretNamespace, secretName)
 		}
 		chartPathOptions.Password = string(baPassword)
 	}

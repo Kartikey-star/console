@@ -350,8 +350,8 @@ func TestGetChartBasicAuth(t *testing.T) {
 			// create a secret in required namespace
 			if test.createSecret {
 				data := map[string][]byte{
-					Username: []byte("AzureDiamond"),
-					Password: []byte("hunter2"),
+					username: []byte("AzureDiamond"),
+					password: []byte("hunter2"),
 				}
 				secretSpec := &v1.Secret{Data: data, ObjectMeta: metav1.ObjectMeta{Name: "my-repo", Namespace: test.namespace}}
 				objs = append(objs, secretSpec)

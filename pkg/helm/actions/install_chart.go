@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -11,12 +10,9 @@ import (
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/release"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
-	"k8s.io/klog"
 )
 
 var (
@@ -111,39 +107,4 @@ func InstallChart(ns, name, url string, vals map[string]interface{}, conf *actio
 		}
 	}()
 	return release, nil
-}
-
-// getRepositoryConnectionConfig returns the connection configuration for the
-// repository with given `name` and `namespace`.
-func getRepositoryConnectionConfig(
-	name string,
-	namespace string,
-	client dynamic.Interface,
-) (interface{}, bool, error) {
-	// attempt to get a project scoped Helm Chart repository
-	unstructuredRepository, getProjectRepositoryErr := client.Resource(helmChartRepositoryNamespaceGVK).Namespace(namespace).Get(context.TODO(), name, v1.GetOptions{})
-	if getProjectRepositoryErr == nil {
-		var repository v1beta1.ProjectHelmChartRepository
-		err := runtime.DefaultUnstructuredConverter.FromUnstructured(unstructuredRepository.Object, &repository)
-		if err != nil {
-			return v1beta1.ConnectionConfig{}, false, err
-		}
-		//return false for icClusterScoped Repo or not
-		return repository.Spec.ProjectConnectionConfig, false, nil
-	}
-
-	// attempt to get a cluster scoped Helm Chart repository
-	unstructuredRepository, getClusterRepositoryErr := client.Resource(helmChartRepositoryClusterGVK).Get(context.TODO(), name, v1.GetOptions{})
-	if getClusterRepositoryErr == nil {
-		var repository v1beta1.HelmChartRepository
-		err := runtime.DefaultUnstructuredConverter.FromUnstructured(unstructuredRepository.Object, &repository)
-		if err != nil {
-			return v1beta1.ConnectionConfig{}, false, err
-		}
-		return repository.Spec.ConnectionConfig, true, nil
-	}
-
-	// neither project or cluster scoped Helm Chart repositories have been found.
-	klog.Errorf("Error listing namespace helm chart repositories: %v \nempty repository list will be used", getClusterRepositoryErr)
-	return v1beta1.ConnectionConfig{}, false, getClusterRepositoryErr
 }
