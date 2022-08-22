@@ -49,17 +49,18 @@ func InstallChart(ns, name, url string, vals map[string]interface{}, conf *actio
 	if err != nil {
 		return nil, err
 	}
+
 	if isClusterScoped {
 		clusterConnectionConfig := connectionConfig.(v1beta1.ConnectionConfig)
 		tlsFiles, err = setUpAuthentication(&cmd.ChartPathOptions, &clusterConnectionConfig, coreClient)
 		if err != nil {
-			return nil, fmt.Errorf("error setting up authentication: %w", err)
+			return nil, fmt.Errorf("error setting up authentication: %v", err)
 		}
 	} else {
 		namespaceConnectionConfig := connectionConfig.(v1beta1.ConnectionConfigNamespaceScoped)
 		tlsFiles, err = setUpAuthenticationProject(&cmd.ChartPathOptions, &namespaceConnectionConfig, coreClient, ns)
 		if err != nil {
-			return nil, fmt.Errorf("error setting up authentication: %w", err)
+			return nil, fmt.Errorf("error setting up authentication: %v", err)
 		}
 	}
 	cmd.ReleaseName = name
@@ -72,7 +73,7 @@ func InstallChart(ns, name, url string, vals map[string]interface{}, conf *actio
 	cmd.ChartPathOptions.Version = chartInfo.Version
 	cp, err = cmd.ChartPathOptions.LocateChart(chartLocation, settings)
 	if err != nil {
-		return nil, fmt.Errorf("error locating chart: %w", err)
+		return nil, fmt.Errorf("error locating chart: %v", err)
 	}
 	ch, err := loader.Load(cp)
 	if err != nil {

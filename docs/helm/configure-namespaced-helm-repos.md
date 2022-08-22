@@ -26,13 +26,7 @@ spec:
   # optional: tlsClientConfig is an optional reference to a secret by name that contains the PEM-encoded TLS client certificate and private key to present when connecting to the server. The key "tls.crt" is used to locate the client certificate. The key "tls.key" is used to locate the private key. The namespace for this secret must be same as the namespace where the project helm chart repository is getting instantiated.
   # optional: ca is an optional reference to a config map by name containing the PEM-encoded CA bundle. It is used as a trust anchor to validate the TLS certificate presented by the remote server. The key "ca-bundle.crt" is used to locate the data. If empty, the default system roots are used. The namespace for this configmap must be same as the namespace where the project helm chart repository is getting instantiated.
   # optional: basicAuthConfig is an optional reference to a secret by name that contains the basic authentication credentials to present when connecting to the server. The key "username" is used locate the username. The key "password" is used to locate the password. The namespace for this secret must be same as the namespace where the project helm chart repository is getting instantiated.
-  connectionConfig:
-    url: HELM_CHART_REPO_URL
-    tlsClientConfig: HELM_CHART_TLS_CLIENT_CONFIG_SECRET_NAME
-    ca: HELM_CHART_CA_CONFIG_MAP_NAME
     basicAuthConfig: HELM_CHART_BASIC_AUTH_SECRET_NAME
-```
-
 ## Adding Namespace-scoped Custom Helm Chart Repositories
 
 To add a new namespace-scoped Helm repository, add a custom Helm Chart Repository CR, for example, `azure-sample-repo` CR to your `my-namespace` namespace:
