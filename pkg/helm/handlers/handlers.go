@@ -135,14 +135,20 @@ func (h *helmHandlers) HandleHelmInstall(user *auth.User, w http.ResponseWriter,
 		serverutils.SendResponse(w, http.StatusBadGateway, serverutils.ApiError{Err: fmt.Sprintf("Failed to parse request: %v", err)})
 		return
 	}
-	resp, err := h.installChart(req.Namespace, req.Name, req.ChartUrl, req.Values, conf, client, coreClient, true, req.IndexEntry)
-	if err != nil {
-		serverutils.SendResponse(w, http.StatusBadGateway, serverutils.ApiError{Err: fmt.Sprintf("Failed to install helm chart: %v", err)})
-		return
-	}
+	c := make(chan *release.Release)
+	go func() {
+		resp, err := h.installChart(req.Namespace, req.Name, req.ChartUrl, req.Values, conf, client, coreClient, true, req.IndexEntry)
+		if err != nil {
+			serverutils.SendResponse(w, http.StatusBadGateway, serverutils.ApiError{Err: fmt.Sprintf("Failed to install helm chart: %v", err)})
+			return
+		}
+		c <- resp
+
+		fmt.Println("...Done!")
+	}()
 
 	w.Header().Set("Content-Type", "application/json")
-	res, _ := json.Marshal(resp)
+	res, _ := json.Marshal("Installation in progress")
 	w.Write(res)
 }
 
