@@ -9,12 +9,18 @@ import (
 
 	"github.com/openshift/api/helm/v1beta1"
 	"github.com/openshift/console/pkg/helm/chartproxy"
+	kv1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/dynamic"
 	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/klog"
 )
+
+type Secret struct {
+	Name string `json:"name"`
+}
 
 // constants
 const (
@@ -162,4 +168,17 @@ func getRepositoryConnectionConfig(
 	// neither project or cluster scoped Helm Chart repositories have been found.
 	klog.Errorf("Error listing namespace helm chart repositories: %v \nempty repository list will be used", getClusterRepositoryErr)
 	return v1beta1.ConnectionConfig{}, false, getClusterRepositoryErr
+}
+
+func getSecret(ns string, name string, version int, coreclient corev1client.CoreV1Interface) (Secret, error) {
+	label := fmt.Sprintf("owner=helm,name=%v,version=%v", name, version)
+	var obj Secret
+	secretList, err := coreclient.Secrets(ns).Watch(context.TODO(), metav1.ListOptions{LabelSelector: label, Watch: true})
+	if err != nil {
+		return Secret{}, err
+	}
+	event := <-secretList.ResultChan()
+	obj.Name = event.Object.(*kv1.Secret).ObjectMeta.Name
+	secretList.Stop()
+	return obj, nil
 }
